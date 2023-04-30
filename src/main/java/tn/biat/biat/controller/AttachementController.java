@@ -5,10 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.biat.biat.services.IAttachementService;
 
+import java.io.InputStream;
 import java.nio.file.Paths;
 import java.util.List;
 import org.springframework.core.io.Resource;
@@ -16,6 +18,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,6 +60,7 @@ public class AttachementController {
     // Define a method to download files
     @GetMapping("/download/{filename}")
     public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws IOException {
+        System.err.println(filename);
         Resource resource = iAttachementService.downloadFiles(filename);
         HttpHeaders headers = new HttpHeaders();
         headers.add("File-Name", filename);
@@ -98,9 +102,19 @@ public class AttachementController {
     }
 
     @GetMapping("/data/{filename}/{iduser}")
-    public List<List<String>> getDataFromExcel(@PathVariable("filename") String filename, @PathVariable("iduser") Long iduser) throws IOException {
-        return iAttachementService.getDataFromExcel(filename,iduser);
+    public void getDataFromExcel(HttpServletResponse response, @PathVariable("filename") String filename, @PathVariable("iduser") Long iduser) throws IOException {
+        Resource  resource = iAttachementService.getDataFromExcel(filename,iduser);
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition",
+                String.format("attachment; filename=" +
+                        resource.getFilename()));
+
+        response.setContentLength((int) resource.contentLength());
+        InputStream inputStream = resource.getInputStream();
+        FileCopyUtils.copy(inputStream, response.getOutputStream());
+
     }
+
 
 
 }

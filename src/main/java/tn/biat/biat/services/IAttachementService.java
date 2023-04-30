@@ -11,6 +11,6 @@ public interface IAttachementService {
     boolean delete(Long id);
     List<String> uploadFiles(List<MultipartFile> multipartFiles);
     List<String> listAllFiles();
-    List<List<String>> getDataFromExcel(String fileName, Long iduser) throws IOException;
+    Resource getDataFromExcel(String fileName, Long iduser) throws IOException;
     Resource downloadFiles(String filename) throws IOException;
 }

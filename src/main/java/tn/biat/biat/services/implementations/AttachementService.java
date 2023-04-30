@@ -105,7 +105,7 @@ public class AttachementService implements IAttachementService {
     }
 
 
-    public static final String DIRECTORY = "C:\\Users\\onske\\Desktop\\biat2\\src\\main\\resources\\static\\files";
+    public static String DIRECTORY =  Paths.get("").toAbsolutePath()+ File.separator + "target" + File.separator + "static" + File.separator + "files" + File.separator;
 
     @Override
     public List<String> uploadFiles(List<MultipartFile> multipartFiles){
@@ -124,49 +124,42 @@ public class AttachementService implements IAttachementService {
     }
 
 
-    public static final String DIRECTORY2 = "/static/files/";
+    //public static final String DIRECTORY2 = "/static/files/";
 
     @Override
     public List<String> listAllFiles() {
-        try {
+
             // load the resource for the directory containing the files
-            Resource resource = resourceLoader.getResource(DIRECTORY2);
+            Resource resource = resourceLoader.getResource(DIRECTORY);
             // get the file path from the resource
-            String path = resource.getFile().getAbsolutePath();
+          // String path = resource.getFile().getAbsolutePath();
+            System.err.println(resource.toString());
             // list all the files in the directory
-            File[] files = new File(path).listFiles();
+            File[] files = new File(DIRECTORY).listFiles();
             if (files != null) {
                 // return a list of file names
                 return Arrays.stream(files)
                         .map(File::getName)
                         .collect(Collectors.toList());
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
         return Collections.emptyList();
     }
 
     @Override
     public Resource downloadFiles(String filename) throws IOException {
-        System.out.println(filename);
-        Path filePath = get(DIRECTORY).toAbsolutePath().normalize().resolve(filename);
-        if(!Files.exists(filePath)) {
+        System.out.println("nousssa "+filename);
+        if(!Files.exists(Path.of(DIRECTORY + filename))) {
             throw new FileNotFoundException(filename + " was not found on the server");
         }
-        Resource resource = new UrlResource(filePath.toUri());
-        HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("File-Name", filename);
-        System.out.println("hhhhhhhhhhh "+resource.getFilename());
-        httpHeaders.add(CONTENT_DISPOSITION, "attachment;File-Name= " + resource.getFilename());
-        System.out.println(resource);
+        Resource resource = resourceLoader.getResource(DIRECTORY + filename);
         return resource;
     }
 
 
 
     @Override
-    public List<List<String>> getDataFromExcel(String fileName,Long iduser) throws IOException {
+    public Resource getDataFromExcel(String fileName,Long iduser) throws IOException {
         List<List<String>> data = new ArrayList<>();
         System.out.println("hhhhhhhhhhh "+ fileName);
         User u = userService.getUserById(iduser);
@@ -178,8 +171,8 @@ public class AttachementService implements IAttachementService {
             }
         }*/
 
-        Resource resource = resourceLoader.getResource(DIRECTORY2+fileName);
-        FileInputStream fileInputStream = new FileInputStream(resource.getFile());
+
+        FileInputStream fileInputStream = new FileInputStream(DIRECTORY+fileName);
         XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
         XSSFSheet worksheet = workbook.getSheetAt(0);
         System.out.println("ons");
@@ -280,22 +273,26 @@ public class AttachementService implements IAttachementService {
         }
         finaldata.add(data.get(0));
         String newFileName = fileName.replace(".xlsx", "")+"-"+u.getLibelle()+".xlsx";
-        for(int l=1; l<= data.size()-1; l++){
+        Resource res = null;
+        for(int l=1; l<= data.size()-1; l++) {
             for (String ss : data.get(0)) {
-                System.out.println("9ball "+j);
-                if (ss.equals("account")){
-                    if(codes.contains(data.get(l).get(j))){
+                System.out.println("9ball " + j);
+                if (ss.equals("account")) {
+                    if (codes.contains(data.get(l).get(j))) {
                         finaldata.add(data.get(l));
                         System.out.println(finaldata);
                         writeToExcel(finaldata, newFileName, iduser);
-                        System.out.println("new excel file "+newFileName+" : done");
+                        System.out.println("new excel file " + newFileName + " : done");
+                        res = downloadFiles(newFileName);
+
                     }
                 }
                 j++;
-            }j=0;
+            }
+            j = 0;
         }
-        this.downloadFiles(newFileName);
-        return data;
+        System.err.println(res);
+        return res;
     }
 
     public void writeToExcel(List<List<String>> finaldata, String fileName ,Long iduser) throws IOException {
@@ -317,7 +314,11 @@ public class AttachementService implements IAttachementService {
         }
         System.out.println("mmmmmmmmmmmmmmmmmm");
         // save workbook to file
-        FileOutputStream outputStream = new FileOutputStream(DIRECTORY+"/"+ fileName);
+        File fil = new File(DIRECTORY+ fileName);
+        System.out.println("offff");
+        if(fil.delete()) System.err.println("yes"); else System.err.println("no");
+
+        FileOutputStream outputStream = new FileOutputStream(DIRECTORY+ fileName);
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();
