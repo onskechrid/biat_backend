@@ -59,13 +59,11 @@ public class AttachementController {
 
     // Define a method to download files
     @GetMapping("/download/{filename}")
-    public ResponseEntity<Resource> downloadFile(@PathVariable String filename) throws IOException {
-        System.err.println(filename);
+    public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) throws IOException {
         Resource resource = iAttachementService.downloadFiles(filename);
         HttpHeaders headers = new HttpHeaders();
         headers.add("File-Name", filename);
-        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + resource.getFilename());
-
+        headers.add(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename);
         return ResponseEntity.ok()
                 .headers(headers)
                 .body(resource);
@@ -104,10 +102,9 @@ public class AttachementController {
     @GetMapping("/data/{filename}/{iduser}")
     public void getDataFromExcel(HttpServletResponse response, @PathVariable("filename") String filename, @PathVariable("iduser") Long iduser) throws IOException {
         Resource  resource = iAttachementService.getDataFromExcel(filename,iduser);
-        response.setContentType("text/csv");
+        response.setContentType("file/csv");
         response.setHeader("Content-Disposition",
-                String.format("attachment; filename=" +
-                        resource.getFilename()));
+                String.format("attachment; filename=" + filename));
 
         response.setContentLength((int) resource.contentLength());
         InputStream inputStream = resource.getInputStream();

@@ -126,56 +126,63 @@ public class AttachementService implements IAttachementService {
 
     //public static final String DIRECTORY2 = "/static/files/";
 
+    public List<String> getLibelles(){
+        List<User> users = userService.getAll();
+        List<String> list = new ArrayList<>();
+        for(User u : users){
+            list.add(u.getLibelle());
+        }
+        return list;
+    }
+
     @Override
     public List<String> listAllFiles() {
 
-            // load the resource for the directory containing the files
-            Resource resource = resourceLoader.getResource(DIRECTORY);
-            // get the file path from the resource
-          // String path = resource.getFile().getAbsolutePath();
-            System.err.println(resource.toString());
-            // list all the files in the directory
-            File[] files = new File(DIRECTORY).listFiles();
-            if (files != null) {
-                // return a list of file names
-                return Arrays.stream(files)
-                        .map(File::getName)
-                        .collect(Collectors.toList());
+        // load the resource for the directory containing the files
+        Resource resource = resourceLoader.getResource(DIRECTORY);
+        // get the file path from the resource
+        System.err.println(resource.toString());
+        // list all the files in the directory
+        File[] files = new File(DIRECTORY).listFiles();
+        for (File f : files){
+            String fileName = f.getName();
+            String substring = fileName.substring(fileName.lastIndexOf("-") + 1, fileName.lastIndexOf("."));
+            if(getLibelles().contains(substring)){
+                f.delete();
             }
-
+        }
+        if (files != null) {
+            // return a list of file names
+            return Arrays.stream(files)
+                    .map(File::getName)
+                    .collect(Collectors.toList());
+        }
         return Collections.emptyList();
     }
 
     @Override
     public Resource downloadFiles(String filename) throws IOException {
-        System.out.println("nousssa "+filename);
-        if(!Files.exists(Path.of(DIRECTORY + filename))) {
+        Path filePath = get(DIRECTORY).toAbsolutePath().normalize().resolve(filename);
+        if(!Files.exists(filePath)) {
             throw new FileNotFoundException(filename + " was not found on the server");
         }
-        Resource resource = resourceLoader.getResource(DIRECTORY + filename);
+        Resource resource = new UrlResource(filePath.toUri());
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add("File-Name", filename);
+        httpHeaders.add(CONTENT_DISPOSITION, "attachment;File-Name= " + filename);
+        System.out.println(resource);
         return resource;
     }
-
 
 
     @Override
     public Resource getDataFromExcel(String fileName,Long iduser) throws IOException {
         List<List<String>> data = new ArrayList<>();
-        System.out.println("hhhhhhhhhhh "+ fileName);
         User u = userService.getUserById(iduser);
-        System.out.println("userr "+u);
-/*        for(String name: this.listAllFiles()) {
-            if (name.equals(fileName.replace(".xlsx", "")+"-"+u.getLibelle()+".xlsx")) {
-                System.out.println("famma " + fileName+" *** " + name);
-                return data;
-            }
-        }*/
-
-
+        Resource res = null;
         FileInputStream fileInputStream = new FileInputStream(DIRECTORY+fileName);
         XSSFWorkbook workbook = new XSSFWorkbook(fileInputStream);
         XSSFSheet worksheet = workbook.getSheetAt(0);
-        System.out.println("ons");
         for (Row row : worksheet) {
             List<String> rowData = new ArrayList<>();
             for (Cell cell : row) {
@@ -194,9 +201,7 @@ public class AttachementService implements IAttachementService {
                     for (int y=1; y<=data.size()-1; y++) {
                         if (data.get(y).get(i).replaceAll("\\.0", "").equals(u.getLibelle())) {
                             for (String ss : data.get(0)) {
-                                System.out.println("9ball "+j);
                                 if (ss.equals("account")) {
-                                    System.out.println("j = "+j);
                                     codes.add(data.get(y).get(j));
                                 }
                                 j++;
@@ -210,9 +215,7 @@ public class AttachementService implements IAttachementService {
                     for (int y=1; y<=data.size()-1; y++) {
                         if (AgenceByZone.contains(data.get(y).get(i).replaceAll("\\.0", ""))) {
                             for (String ss : data.get(0)) {
-                                System.out.println("9ball "+j);
                                 if (ss.equals("account")) {
-                                    System.out.println("j = "+j);
                                     codes.add(data.get(y).get(j));
                                 }
                                 j++;
@@ -242,9 +245,7 @@ public class AttachementService implements IAttachementService {
                     for (int y=1; y<=data.size()-1; y++) {
                         if (AgenceByPole.contains(data.get(y).get(i).replaceAll("\\.0", ""))) {
                             for (String ss : data.get(0)) {
-                                System.out.println("9ball "+j);
                                 if (ss.equals("account")) {
-                                    System.out.println("j = "+j);
                                     codes.add(data.get(y).get(j));
                                 }
                                 j++;
@@ -256,55 +257,44 @@ public class AttachementService implements IAttachementService {
                     codes.clear();
                     for (int y=1; y<=data.size()-1; y++){
                         for (String ss : data.get(0)) {
-                            System.out.println("9ball "+j);
                             if (ss.equals("account")) {
-                                System.out.println("j = "+j);
                                 codes.add(data.get(y).get(j));
                             }
                             j++;
                         }
                         j=0;
                     }
-                    System.out.println("okhrojj");
                 }
-                System.out.println("codes "+codes);
             }
             i++;
         }
         finaldata.add(data.get(0));
         String newFileName = fileName.replace(".xlsx", "")+"-"+u.getLibelle()+".xlsx";
-        Resource res = null;
+
         for(int l=1; l<= data.size()-1; l++) {
             for (String ss : data.get(0)) {
-                System.out.println("9ball " + j);
                 if (ss.equals("account")) {
                     if (codes.contains(data.get(l).get(j))) {
                         finaldata.add(data.get(l));
-                        System.out.println(finaldata);
                         writeToExcel(finaldata, newFileName, iduser);
-                        System.out.println("new excel file " + newFileName + " : done");
                         res = downloadFiles(newFileName);
-
                     }
                 }
                 j++;
             }
             j = 0;
         }
-        System.err.println(res);
         return res;
     }
 
     public void writeToExcel(List<List<String>> finaldata, String fileName ,Long iduser) throws IOException {
         // create a new workbook and sheet
-        System.out.println("dkhall li write to excel");
         XSSFWorkbook workbook = new XSSFWorkbook();
         XSSFSheet sheet = workbook.createSheet("Sheet1");
         User u = userService.getUserById(iduser);
-
         // write data to sheet
         int rowNum = 0;
-        for (List<String> row : finaldata) {
+        for (List<String> row : finaldata){
             Row sheetRow = sheet.createRow(rowNum++);
             int colNum = 0;
             for (String cellValue : row) {
@@ -312,17 +302,13 @@ public class AttachementService implements IAttachementService {
                 cell.setCellValue(cellValue);
             }
         }
-        System.out.println("mmmmmmmmmmmmmmmmmm");
         // save workbook to file
         File fil = new File(DIRECTORY+ fileName);
-        System.out.println("offff");
         if(fil.delete()) System.err.println("yes"); else System.err.println("no");
-
         FileOutputStream outputStream = new FileOutputStream(DIRECTORY+ fileName);
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();
-
     }
 
 

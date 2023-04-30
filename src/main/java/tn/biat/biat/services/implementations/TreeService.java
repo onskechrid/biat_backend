@@ -33,6 +33,12 @@ public class TreeService implements ITreeService {
     }
 
     @Override
+    public List<String> getAgenceByZoneAndLabel(String label) {
+        List<String> list = treeRepository.getAgencesByZone(label);
+        return list;
+    }
+
+    @Override
     public List<String> getAgenceByRegion(Long idUser) {
         User u = userService.getUserById(idUser);
         if (u == null) {
@@ -44,6 +50,13 @@ public class TreeService implements ITreeService {
     }
 
     @Override
+    public List<String> getAgenceByRegionAndLabel(String label) {
+        List<String> list = treeRepository.getAgencesByRegion(label);
+        return list;
+    }
+
+
+    @Override
     public List<String> getAgenceByPole(Long idUser) {
         User u = userService.getUserById(idUser);
         if (u == null) {
@@ -52,6 +65,12 @@ public class TreeService implements ITreeService {
             List<String> list = treeRepository.getAgencesByPole(u.getLibelle());
             return list;
         }
+    }
+
+    @Override
+    public List<String> getAgenceByPoleAndLabel(String label) {
+        List<String> list = treeRepository.getAgencesByPole(label);
+        return list;
     }
 
 }

@@ -44,4 +44,28 @@ public class TreeController {
                 iTreeService.getAgenceByPole(idUser)
         );
     }
+
+
+
+
+    @GetMapping("/agencesByZoneAndLabel/{label}")
+    public ResponseEntity<List<String>> AgencesByZoneAndLabel(@PathVariable("label") String label){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAgenceByZoneAndLabel(label)
+        );
+    }
+
+    @GetMapping("/agencesByRegionAndLabel/{label}")
+    public ResponseEntity<List<String>> agencesByRegionAndLabel(@PathVariable("label") String label){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAgenceByRegionAndLabel(label)
+        );
+    }
+
+    @GetMapping("/agencesByPoleAndLabel/{label}")
+    public ResponseEntity<List<String>> agencesByPoleAndLabel(@PathVariable("label") String label){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAgenceByPoleAndLabel(label)
+        );
+    }
 }
