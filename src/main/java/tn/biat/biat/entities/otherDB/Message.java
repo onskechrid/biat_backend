@@ -27,17 +27,20 @@ public class Message implements Serializable {
     private String sender;
     private String receiver;
     private String object;
-    private String type; //MESSAGE // RECLAMATION
+    private String type; //MESSAGE // RECLAMATION // CLASSIFICATION
     private LocalDateTime timestamp;
-    private boolean isImportant;
-    private String processStatus; // Déposée - En cours de traitement - Traitée (Réclamation) // Sent - Read - Failed (Message)
+    private String processStatus; // Déposée - En cours de traitement - Traitée (Réclamation) // Sent - Read - Failed (Message) // Déposée - En attente - classé (classification)
 
     //Keni reclamation
     private String codeclient;
     private String compteclient;
 
+    //keni classification
+    private Integer classe;
+    private String motif;
+
     @OneToMany
     private List<Attachement> attachements;
     private Long idResponseMessage;
-    private String status; // OK: validée - KO: Refusée - MI: Demande plus d'informations
+    private String status; // OK: validée - KO: Refusée - MI: Demande plus d'informations // hiyya decision ta3 classification
 }

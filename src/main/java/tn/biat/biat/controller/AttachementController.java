@@ -109,7 +109,6 @@ public class AttachementController {
         response.setContentLength((int) resource.contentLength());
         InputStream inputStream = resource.getInputStream();
         FileCopyUtils.copy(inputStream, response.getOutputStream());
-
     }
 
 

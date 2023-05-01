@@ -12,4 +12,6 @@ public interface ClassificationRepository extends JpaRepository<Classification, 
 
     @Query(value = "select * from \"Classification\" c where \"client_account\" = :account" , nativeQuery = true)
     public Classification getClassificationByClientaccount(@Param("account") String account);
+
+
 }

@@ -149,6 +149,27 @@ public class ClassificationService implements IClassificationService {
     }
 
     @Override
+    public boolean updateClassificationRefusee(String account,String decision){
+        Classification c = this.getClassificationByClientaccount(account);
+        if(c == null){
+            return false;
+        }else{
+            c.setDecision(decision);
+            classificationRepository.save(c);
+            List<User> agencies = this.userRepository.geAlltByLib(c.getClient().getCode());
+            System.err.println(agencies.toString());
+            for(User ag : agencies){
+                this.sendEmail(ag.getEmail(), "Classement du client : "+c.getClient().getAccount(), "Bonjour "+ag.getUserFirstName()+" "+ag.getUserLastName()+",\n" +
+                        "\n" +
+                        "Je voulais vous informer que la classification du client '"+c.getClient().getUsername()+"', titulaire du compte '"+c.getClient().getAccount()+"', a été refusée faute d'informations.\n" +
+                        "\n" +
+                        "Cordialement.");
+            }
+            return true;
+        }
+    }
+
+    @Override
     public boolean updateClassificationAttachements(Long id, String name, String size, String type,String url){
         Classification c = this.getById(id);
         if(c==null){
@@ -202,5 +223,34 @@ public class ClassificationService implements IClassificationService {
         }
         return map;
     }
+
+    @Override
+    public Map<String, String> getClassificationByIds2(List<String> list){
+        Map<String, String> map = new HashMap<>();
+        for(String acc : list){
+            Classification cc =this.classificationRepository.getClassificationByClientaccount(acc);
+            if(cc != null)
+                map.put(acc, cc.getDecision());
+            else
+                map.put(acc, null);
+        }
+        return map;
+    }
+
+    @Override
+    public Integer getClassifiedClientsNumber() {
+        return null;
+    }
+
+    @Override
+    public Integer getEnattenteClientsNumber() {
+        return null;
+    }
+
+    @Override
+    public Integer getRefuseeClientsNumber() {
+        return null;
+    }
+
 
 }

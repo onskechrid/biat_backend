@@ -5,6 +5,7 @@ import tn.biat.biat.entities.otherDB.Attachement;
 import tn.biat.biat.entities.otherDB.Message;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IMessageService {
 
@@ -14,6 +15,7 @@ public interface IMessageService {
     boolean updateReclamationAttachements(Long id, String name, String size, String type, String url);
     boolean updateProcessStatus(Long id, String newStatus);
     boolean updateStatus(Long id, String newStatus);
+    boolean updateMotifAndClasse(Long id, String motif, Integer classe);
     int numberUntreatedMessages();
     int numberTreatedMessages();
     int numberMIReclamations();
@@ -27,4 +29,12 @@ public interface IMessageService {
     Message getResponseMessage(Long id);
     List<Message> getTopLevelMessages();
     List<Long> getMessageChain(Long id);
+
+
+    Map<String, String> getClassificationByIds2(List<String> list);
+    Map<String, Integer> getClassificationByIds(List<String> list);
+    Integer getClassifiedClientsNumber();
+    Integer getEnattenteClientsNumber();
+    Integer getRefuseeClientsNumber();
+
 }

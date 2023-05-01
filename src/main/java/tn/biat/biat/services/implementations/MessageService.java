@@ -27,9 +27,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -84,18 +82,21 @@ public class MessageService implements IMessageService {
                 message.setCompteclient(m.getCompteclient());
                 message.setType(message.getType());
             }
-        }else{
+        }else {
             message.setObject(message.getObject());
             message.setCodeclient(message.getCodeclient());
             message.setCompteclient(message.getCompteclient());
             message.setType(message.getType());
         }
+        message.setMotif(message.getMotif());
+        message.setClasse(message.getClasse());
         message.setText(message.getText());
         message.setTimestamp(LocalDateTime.now());
         message.setAttachements(null);
-        message.setImportant(false);
         if(message.getType().equals("MESSAGE")){
             message.setProcessStatus("Sent");
+        }else if(message.getType().equals("CLASSIFICATION")){
+            message.setProcessStatus("En attente");
         }else {
             message.setProcessStatus("Déposée");
         }
@@ -103,8 +104,10 @@ public class MessageService implements IMessageService {
         messageRepository.save(message);
         if(Objects.equals(message.getType(),"RECLAMATION")){
             historyService.updateUserHistories("ADD","passé une réclamation de type '"+message.getObject()+"'");
-        }else{
+        }else if(Objects.equals(message.getType(), "MESSAGE")){
             historyService.updateUserHistories("ADD","envoyé un message à '"+message.getReceiver()+"'");
+        }else{
+            historyService.updateUserHistories("ADD","passé une réclamation de classification '");
         }
         this.sendEmail("onskechrid1999@gmail.com","Réclamation : "+message.getType(), "Bonjour,\n" +
                 "\n" +
@@ -128,6 +131,19 @@ public class MessageService implements IMessageService {
     @Override
     public Message getById(Long id){
         return messageRepository.findById(id).orElse(null);
+    }
+
+    @Override
+    public boolean updateMotifAndClasse(Long id, String motif, Integer classe){
+        Message m = this.getById(id);
+        if(m == null){
+            return false;
+        }else{
+            m.setClasse(classe);
+            m.setMotif(motif);
+            messageRepository.save(m);
+            return true;
+        }
     }
 
 
@@ -224,7 +240,6 @@ public class MessageService implements IMessageService {
             return false;
         }else{
             m.setText(newText);
-            m.setTimestamp(LocalDateTime.now());
             messageRepository.save(m);
             return true;
         }
@@ -298,5 +313,50 @@ public class MessageService implements IMessageService {
         }
         System.out.println(list);
         return list;
+    }
+
+////////////////////////////////////////////// CLASSIFICATION
+
+    @Override
+    public Map<String, Integer> getClassificationByIds(List<String> list){
+        Map<String, Integer> map = new HashMap<>();
+        for(String acc : list){
+            Classification cc =messageRepository.getClassificationByClientaccount(acc);
+            if(cc != null)
+                map.put(acc, cc.getClasse());
+            else
+                map.put(acc, -1);
+        }
+        return map;
+    }
+    @Override
+    public Map<String, String> getClassificationByIds2(List<String> list){
+        Map<String, String> map = new HashMap<>();
+        for(String acc : list){
+            Classification cc =messageRepository.getClassificationByClientaccount(acc);
+            if(cc != null)
+                map.put(acc, cc.getDecision());
+            else
+                map.put(acc, null);
+        }
+        return map;
+    }
+
+    @Override
+    public Integer getClassifiedClientsNumber(){
+        Integer n = messageRepository.getClassifiedClientsNumber();
+        return n;
+    }
+
+    @Override
+    public Integer getEnattenteClientsNumber(){
+        Integer n = messageRepository.getEnattenteClientsNumber();
+        return n;
+    }
+
+    @Override
+    public Integer getRefuseeClientsNumber(){
+        Integer n = messageRepository.getRefuseeClientsNumber();
+        return n;
     }
 }

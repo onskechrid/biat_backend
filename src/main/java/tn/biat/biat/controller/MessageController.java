@@ -11,6 +11,7 @@ import tn.biat.biat.entities.otherDB.Message;
 import tn.biat.biat.services.IMessageService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/message")
@@ -62,6 +63,14 @@ public class MessageController {
     @GetMapping("/updateStatus/{id}/{newStatus}")
     public ResponseEntity<Boolean> updateStatus(@PathVariable("id") Long id, @PathVariable("newStatus") String newStatus){
         boolean b = iMessageService.updateStatus(id,newStatus);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                b
+        );
+    }
+
+    @GetMapping("/updateMotifAndClasse/{id}/{motif}/{classe}/{decision}")
+    public ResponseEntity<Boolean> updateMotifAndClasse(@PathVariable("id") Long id, @PathVariable("motif") String motif, @PathVariable("classe") Integer classe){
+        boolean b = iMessageService.updateMotifAndClasse(id,motif,classe);
         return ResponseEntity.status(HttpStatus.OK).body(
                 b
         );
@@ -162,5 +171,47 @@ public class MessageController {
                 list
         );
     }
+
+    ////////////////////////////////////// CLASSIFICATION
+
+    @PostMapping("/getByIds")
+    public ResponseEntity<Map<String, Integer>> getClassificationByIds(@RequestBody() List<String> list){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassificationByIds(list)
+        );
+    }
+
+    @PostMapping("/getByIds2")
+    public ResponseEntity<Map<String, String>> getClassificationByIds2(@RequestBody() List<String> list){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassificationByIds2(list)
+        );
+    }
+
+
+
+    @GetMapping("/getClassifiedClientsNumber")
+    public ResponseEntity<Integer> getClassifiedClientsNumber(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassifiedClientsNumber()
+        );
+    }
+
+    @GetMapping("/getEnattenteClientsNumber")
+    public ResponseEntity<Integer> getEnattenteClientsNumber(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getEnattenteClientsNumber()
+        );
+    }
+
+
+    @GetMapping("/getRefuseeClientsNumber")
+    public ResponseEntity<Integer> getRefuseeClientsNumber(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getRefuseeClientsNumber()
+        );
+    }
+
+
 
 }

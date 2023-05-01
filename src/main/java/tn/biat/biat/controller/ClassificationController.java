@@ -74,10 +74,24 @@ public class ClassificationController {
         );
     }
 
+    @GetMapping("/updateClassificationRefusee/{account}/{decision}")
+    public ResponseEntity<Boolean> updateClassificationRefusee(@PathVariable("account") String account,@PathVariable("decision") String decision){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iClassificationService.updateClassificationRefusee(account,decision)
+        );
+    }
+
     @PostMapping("/getByIds")
     public ResponseEntity<Map<String, Integer>> getClassificationByIds(@RequestBody() List<String> list){
         return ResponseEntity.status(HttpStatus.OK).body(
                 iClassificationService.getClassificationByIds(list)
+        );
+    }
+
+    @PostMapping("/getByIds2")
+    public ResponseEntity<Map<String, String>> getClassificationByIds2(@RequestBody() List<String> list){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iClassificationService.getClassificationByIds2(list)
         );
     }
 
