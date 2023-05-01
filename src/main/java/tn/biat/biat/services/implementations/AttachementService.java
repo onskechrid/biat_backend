@@ -10,12 +10,18 @@ import org.springframework.core.io.*;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import tn.biat.biat.entities.otherDB.Attachement;
+import tn.biat.biat.entities.otherDB.DownloadPin;
 import tn.biat.biat.entities.otherDB.User;
 import tn.biat.biat.repository.AttachementRepository;
+import tn.biat.biat.repository.DownloadPinRepository;
 import tn.biat.biat.services.IAttachementService;
 
 import java.io.*;
@@ -27,6 +33,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -52,7 +60,10 @@ public class AttachementService implements IAttachementService {
     ITreeService iTreeService;
 
     HistoryService historyService;
-
+    @Autowired
+    DownloadPinRepository downloadPinRepository;
+    @Autowired
+    JavaMailSender javaMailSender;
 
     @Autowired
     public AttachementService( @Lazy HistoryService historyService){
@@ -311,5 +322,85 @@ public class AttachementService implements IAttachementService {
         outputStream.close();
     }
 
-
+    private static char randomChar() {
+        int rand = new Random().nextInt(52);
+        char start = (rand < 26) ? 'A' : 'a';
+        return (char) (start + rand % 26);
+    }
+    @Async
+    public void sendEmail(String to, String sub, String msg){
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(to);
+        mailMessage.setSubject(sub);
+        mailMessage.setText(msg);
+        mailMessage.setFrom("ons.kechrid@esprit.tn");
+        javaMailSender.send(mailMessage);
+    }
+    @Transactional
+    @Override
+    public boolean checkCode(String pin){
+        User u = userService.getLoggedInUser();
+        List<DownloadPin> pins = downloadPinRepository.findCodeByUserId(u.getId());
+        System.err.println(pins.toString());
+        StringBuilder genpin = new StringBuilder();
+        String alphabet = "0123456789";
+        if(pins.size() == 0){
+            //generate new pin
+            for(int i=0; i<=5; i++){
+                Random r = new Random();
+                char c = alphabet.charAt(r.nextInt(alphabet.length()));
+                genpin.append(c);
+            }
+            System.err.println(genpin);
+            DownloadPin dp = new DownloadPin();
+            dp.setCreatedAt(LocalDateTime.now());
+            dp.setPin(genpin.toString());
+            dp.setIsValidated(false);
+            dp.setUser(u);
+            downloadPinRepository.save(dp);
+            //now we send the email
+            this.sendEmail(u.getEmail(), "Your pin", "TO be able to download the file here is your pin : " + genpin + ". PLease note this is valid only for 15min");
+            return false;
+        }else{
+            //check if its not more than 15min
+            long noOfSeconds = ChronoUnit.SECONDS.between(pins.get(0).getCreatedAt(),LocalDateTime.now());
+            if(noOfSeconds > 900){
+                //15min fetet
+                //fassa5 code 9dim
+                downloadPinRepository.deleteByUserId(u.getId());
+                //generate new pin
+                for(int i=0; i<=5; i++){
+                    Random r = new Random();
+                    char c = alphabet.charAt(r.nextInt(alphabet.length()));
+                    genpin.append(c);
+                }
+                System.err.println(genpin);
+                DownloadPin dp = new DownloadPin();
+                dp.setCreatedAt(LocalDateTime.now());
+                dp.setPin(genpin.toString());
+                dp.setIsValidated(false);
+                dp.setUser(u);
+                downloadPinRepository.save(dp);
+                //now we send the email
+                this.sendEmail(u.getEmail(), "Your pin", "TO be able to download the file here is your pin : " + genpin + ". PLease note this is valid only for 15min");
+                return false;
+            }else{
+                //15min mazelet
+                List<DownloadPin>dpd = downloadPinRepository.findCodeByUserId(u.getId());
+                DownloadPin dow = dpd.get(0);
+                System.err.println(dow.getPin());
+                System.err.println(pin);
+                if(dow.getIsValidated() == true){
+                    return true;
+                }
+                if(pin.equals(dow.getPin())) {
+                    dow.setIsValidated(true);
+                    downloadPinRepository.save(dow);
+                    return true;
+                }else {
+                    return false;
+                }
+            }
+        }
+    }
 }

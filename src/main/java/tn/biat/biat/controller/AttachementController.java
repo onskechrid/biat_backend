@@ -1,5 +1,6 @@
 package tn.biat.biat.controller;
 
+import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.biat.biat.entities.otherDB.DownloadPin;
 import tn.biat.biat.services.IAttachementService;
 
 import java.io.InputStream;
@@ -56,7 +58,10 @@ public class AttachementController {
         return ResponseEntity.ok().body(filenames);
     }
 
-
+    @PostMapping("/code/{pin}")
+    public ResponseEntity<Boolean> check_code(@PathVariable("pin") String pin){
+        return ResponseEntity.ok(iAttachementService.checkCode(pin));
+    }
     // Define a method to download files
     @GetMapping("/download/{filename}")
     public ResponseEntity<Resource> downloadFile(@PathVariable("filename") String filename) throws IOException {
@@ -101,6 +106,7 @@ public class AttachementController {
 
     @GetMapping("/data/{filename}/{iduser}")
     public void getDataFromExcel(HttpServletResponse response, @PathVariable("filename") String filename, @PathVariable("iduser") Long iduser) throws IOException {
+
         Resource  resource = iAttachementService.getDataFromExcel(filename,iduser);
         response.setContentType("file/csv");
         response.setHeader("Content-Disposition",
