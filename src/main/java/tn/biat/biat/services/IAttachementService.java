@@ -13,4 +13,6 @@ public interface IAttachementService {
     List<String> listAllFiles();
     Resource getDataFromExcel(String fileName, Long iduser) throws IOException;
     Resource downloadFiles(String filename) throws IOException;
+
+    boolean checkCode(String pin);
 }
