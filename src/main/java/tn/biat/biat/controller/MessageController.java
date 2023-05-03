@@ -7,8 +7,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.biat.biat.entities.otherDB.Client;
 import tn.biat.biat.entities.otherDB.Message;
 import tn.biat.biat.services.IMessageService;
+import tn.biat.biat.services.QueryDto;
 
 import java.util.List;
 import java.util.Map;
@@ -68,7 +70,7 @@ public class MessageController {
         );
     }
 
-    @GetMapping("/updateMotifAndClasse/{id}/{motif}/{classe}/{decision}")
+    @GetMapping("/updateMotifAndClasse/{id}/{motif}/{classe}")
     public ResponseEntity<Boolean> updateMotifAndClasse(@PathVariable("id") Long id, @PathVariable("motif") String motif, @PathVariable("classe") Integer classe){
         boolean b = iMessageService.updateMotifAndClasse(id,motif,classe);
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -209,6 +211,39 @@ public class MessageController {
     public ResponseEntity<Integer> getRefuseeClientsNumber(){
         return ResponseEntity.status(HttpStatus.OK).body(
                 iMessageService.getRefuseeClientsNumber()
+        );
+    }
+
+    @GetMapping("/getMessageBYCompteClient/{account}")
+    public ResponseEntity<Message> getMessageBYCompteClient(@PathVariable("account") String account){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getMessageBYCompteClient(account)
+        );
+    }
+
+    @GetMapping("/getClientByAccount/{account}")
+    public ResponseEntity<Client> getClientByAccount(@PathVariable("account") String account){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClientByAccount(account)
+        );
+    }
+
+    @GetMapping("/getFilteredQuery/{iduser}/{p}/{s}/{all}")
+    public ResponseEntity<QueryDto> getFilteredQuery(@PathVariable("iduser") Long iduser, @PathVariable("p") String processStatus, @PathVariable("s") String status , @PathVariable("all") String all){
+
+        QueryDto qq = new QueryDto();
+        qq.query = iMessageService.getFilteredQuery(iduser,processStatus,status,all);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                qq
+        );
+    }
+
+    @GetMapping("/getFilteredQuery2/{pt}/{value}")
+    public ResponseEntity<QueryDto> getFilteredQuery(@PathVariable("pt") String profileType,@PathVariable("value") String value){
+        QueryDto qq = new QueryDto();
+        qq.query = iMessageService.getFilteredQuery2(profileType,value);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                qq
         );
     }
 

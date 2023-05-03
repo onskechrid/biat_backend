@@ -4,7 +4,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import tn.biat.biat.entities.otherDB.Classification;
+import org.springframework.web.bind.annotation.PathVariable;
+import tn.biat.biat.entities.otherDB.Client;
 import tn.biat.biat.entities.otherDB.Message;
 
 import java.util.List;
@@ -45,15 +46,20 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query(value = "select * from \"Message\" m where idresponsemessage isnull", nativeQuery = true)
     public List<Message> getTopLevelMessages();
 
-    @Query(value = "select * from \"Message\" m where compteclient = ':account' and \"type\" = 'CLASSIFICATION'" , nativeQuery = true)
-    public Classification getClassificationByClientaccount(@Param("account") String account);
+    @Query(value = "select * from \"Message\" m where compteclient = :account and type = 'CLASSIFICATION'" , nativeQuery = true)
+    public Message getMessageBYCompteClient(@Param("account") String account);
 
-    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Accepté'", nativeQuery = true)
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation'", nativeQuery = true)
     public Integer getClassifiedClientsNumber();
 
     @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'En attente'", nativeQuery = true)
     public Integer getEnattenteClientsNumber();
 
-    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'En attente' and status = 'Refusé'", nativeQuery = true)
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'En attente' and status = 'Refus'", nativeQuery = true)
     public Integer getRefuseeClientsNumber();
+
+    @Query(value = "SELECT * FROM \"Message\" WHERE compteclient = :account", nativeQuery = true)
+    public Client getClientByAccount(@Param("account") String account);
+
+
 }

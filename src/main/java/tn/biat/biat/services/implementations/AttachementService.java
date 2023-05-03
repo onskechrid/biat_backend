@@ -359,7 +359,7 @@ public class AttachementService implements IAttachementService {
             dp.setUser(u);
             downloadPinRepository.save(dp);
             //now we send the email
-            this.sendEmail(u.getEmail(), "Your pin", "TO be able to download the file here is your pin : " + genpin + ". PLease note this is valid only for 15min");
+            //this.sendEmail(u.getEmail(), "Your pin", "TO be able to download the file here is your pin : " + genpin + ". PLease note this is valid only for 15min");
             return false;
         }else{
             //check if its not more than 15min

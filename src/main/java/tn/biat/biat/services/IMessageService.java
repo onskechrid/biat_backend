@@ -2,6 +2,7 @@ package tn.biat.biat.services;
 
 import net.minidev.json.JSONArray;
 import tn.biat.biat.entities.otherDB.Attachement;
+import tn.biat.biat.entities.otherDB.Client;
 import tn.biat.biat.entities.otherDB.Message;
 
 import java.util.List;
@@ -36,5 +37,10 @@ public interface IMessageService {
     Integer getClassifiedClientsNumber();
     Integer getEnattenteClientsNumber();
     Integer getRefuseeClientsNumber();
+    Message getMessageBYCompteClient(String account);
+    Client getClientByAccount(String account);
+
+    String getFilteredQuery(Long iduser, String processStatus, String status , String all);
+    String getFilteredQuery2(String profileType, String value);
 
 }
