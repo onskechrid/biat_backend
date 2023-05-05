@@ -23,7 +23,6 @@ public class TreeController {
     @Autowired
     ITreeService iTreeService;
 
-
     @GetMapping("/agencesByZone/{idUser}")
     public ResponseEntity<List<String>> AgencesByZone(@PathVariable("idUser") Long idUser){
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -45,8 +44,12 @@ public class TreeController {
         );
     }
 
-
-
+    @GetMapping("/getExtensions/{pt}/{value}")
+    public ResponseEntity<List<String>> getExtensions(@PathVariable("pt") String pt, @PathVariable("value") String value){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getExtensions(pt,value)
+        );
+    }
 
     @GetMapping("/agencesByZoneAndLabel/{label}")
     public ResponseEntity<List<String>> AgencesByZoneAndLabel(@PathVariable("label") String label){
@@ -68,4 +71,31 @@ public class TreeController {
                 iTreeService.getAgenceByPoleAndLabel(label)
         );
     }
+
+
+    @GetMapping("/getAllAgences")
+    public ResponseEntity<List<String>> getAllAgences(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAllAgences()
+        );
+    }
+    @GetMapping("/getAllZones")
+    public ResponseEntity<List<String>> getAllZones(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAllZones()
+        );
+    }
+    @GetMapping("/getAllRegions")
+    public ResponseEntity<List<String>> getAllRegions(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAllRegions()
+        );
+    }
+    @GetMapping("/getAllPoles")
+    public ResponseEntity<List<String>> getAllPoles(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iTreeService.getAllPoles()
+        );
+    }
+
 }

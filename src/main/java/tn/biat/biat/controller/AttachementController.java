@@ -106,12 +106,10 @@ public class AttachementController {
 
     @GetMapping("/data/{filename}/{iduser}")
     public void getDataFromExcel(HttpServletResponse response, @PathVariable("filename") String filename, @PathVariable("iduser") Long iduser) throws IOException {
-
         Resource  resource = iAttachementService.getDataFromExcel(filename,iduser);
-        response.setContentType("file/csv");
-        response.setHeader("Content-Disposition",
-                String.format("attachment; filename=" + filename));
-
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", String.format("attachment; filename=" + resource.getFilename()));
+        System.err.println(filename);
         response.setContentLength((int) resource.contentLength());
         InputStream inputStream = resource.getInputStream();
         FileCopyUtils.copy(inputStream, response.getOutputStream());

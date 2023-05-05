@@ -32,15 +32,17 @@ public interface IMessageService {
     List<Long> getMessageChain(Long id);
 
 
+    Map<String, String> getClassificationByIds3(List<String> list);
     Map<String, String> getClassificationByIds2(List<String> list);
     Map<String, Integer> getClassificationByIds(List<String> list);
     Integer getClassifiedClientsNumber();
     Integer getEnattenteClientsNumber();
     Integer getRefuseeClientsNumber();
+    Integer getDeposeClientsNumber();
     Message getMessageBYCompteClient(String account);
     Client getClientByAccount(String account);
 
     String getFilteredQuery(Long iduser, String processStatus, String status , String all);
-    String getFilteredQuery2(String profileType, String value);
+    String getFilteredQuery2(Long iduser, String agence,String zone, String region, String pole);
 
 }

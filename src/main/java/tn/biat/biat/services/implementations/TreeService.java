@@ -8,6 +8,7 @@ import tn.biat.biat.entities.otherDB.User;
 import tn.biat.biat.repository.TreeRepository;
 import tn.biat.biat.services.ITreeService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -71,6 +72,47 @@ public class TreeService implements ITreeService {
     public List<String> getAgenceByPoleAndLabel(String label) {
         List<String> list = treeRepository.getAgencesByPole(label);
         return list;
+    }
+
+    @Override
+    public List<String> getAllAgences(){
+        return treeRepository.getAllAgences();
+    }
+    @Override
+    public List<String> getAllZones(){
+        return treeRepository.getAllZones();
+    }
+    @Override
+    public List<String> getAllPoles(){
+        return treeRepository.getAllPoles();
+    }
+    @Override
+    public List<String> getAllRegions(){
+        return treeRepository.getAllRegions();
+    }
+
+    @Override
+    public List<String> getExtensions(String pt,String value){
+        List<String> allExtensions = new ArrayList<>();
+        if(pt.equals("ZONE") || pt.equals("GROUPE")){
+            allExtensions.addAll(getAgenceByZoneAndLabel(value));
+            allExtensions.add(value);
+        }else if(pt.equals("REGION")){
+            allExtensions.addAll(getAgenceByRegionAndLabel(value));
+            allExtensions.addAll(treeRepository.getAllZonesByRegion(value));
+            allExtensions.add(value);
+        }else if(pt.equals("PCB") || pt.equals("PBD")){
+            allExtensions.addAll(getAgenceByPoleAndLabel(value));
+            allExtensions.addAll(treeRepository.getAllZonesByPole(value));
+            allExtensions.addAll(treeRepository.getAllRegionsByPole(value));
+            allExtensions.add(value);
+        }else if(pt.equals("RISQUE REPORTING") || pt.equals("RISQUE CREDIT")){
+            allExtensions.addAll(treeRepository.getAllRegions());
+            allExtensions.addAll(treeRepository.getAllPoles());
+            allExtensions.addAll(treeRepository.getAllAgences());
+            allExtensions.addAll(treeRepository.getAllZones());
+        }
+        return allExtensions;
     }
 
 }

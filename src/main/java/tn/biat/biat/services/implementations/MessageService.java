@@ -350,6 +350,20 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    public Map<String, String> getClassificationByIds3(List<String> list){
+        System.err.println("dkhalllllllll");
+        Map<String, String> map = new HashMap<>();
+        for(String acc : list){
+            Message cc = messageRepository.getMessageBYCompteClient(acc);
+            if(cc != null)
+                map.put(acc, cc.getProcessStatus());
+            else
+                map.put(acc, null);
+        }
+        return map;
+    }
+
+    @Override
     public Integer getClassifiedClientsNumber(){
         Integer n = messageRepository.getClassifiedClientsNumber();
         return n;
@@ -364,6 +378,12 @@ public class MessageService implements IMessageService {
     @Override
     public Integer getRefuseeClientsNumber(){
         Integer n = messageRepository.getRefuseeClientsNumber();
+        return n;
+    }
+
+    @Override
+    public Integer getDeposeClientsNumber(){
+        Integer n = messageRepository.getDeposeClientsNumber();
         return n;
     }
 
@@ -451,7 +471,7 @@ public class MessageService implements IMessageService {
                     System.err.println(all);
                     q = QUERY;
                 }else{
-                    q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.processstatus = 'En attente' and m.status isnull";
+                    q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.processstatus = 'Déposé' and m.status isnull";
                 }
             }
             return q;
@@ -459,9 +479,9 @@ public class MessageService implements IMessageService {
     }
 
 
-    @Override
-    public String getFilteredQuery2(String profileType,String value){
+    public String getFilteredQuery22(String profileType,String value){
         String q = "";
+
         System.err.println(profileType +" " + value);
         if(profileType.equals("AGENCE") || profileType.equals("CA")){
             q = QUERY + " inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code ='" + value + "'";
@@ -480,6 +500,30 @@ public class MessageService implements IMessageService {
             q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
         }else{
             q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.processstatus = 'En attente'";
+        }
+        return q;
+    }
+
+    @Override
+    public String getFilteredQuery2(Long iduser, String agence,String zone, String region, String pole){
+        String q = "";
+        if(!agence.equals("null") && !agence.equals("default")){
+            q = QUERY + " inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code ='" + agence + "'";
+        }else if(!zone.equals("null") && !zone.equals("default")){
+            List<String> AgenceByZone = treeRepository.getAgencesByZone(zone);
+            String codes = AgenceByZone.stream().map(s -> "'" + s + "'").collect(Collectors.joining(", "));
+            q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
+        }else if(!region.equals("null") && !region.equals("default")) {
+            List<String> AgenceByRegion = treeRepository.getAgencesByRegion(region);
+            String codes = AgenceByRegion.stream().map(s -> "'" + s + "'").collect(Collectors.joining(", "));
+            q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
+        }else if(!pole.equals("null") && !pole.equals("default")) {
+            List<String> AgenceByPole = treeRepository.getAgencesByPole(pole);
+            System.out.println(AgenceByPole);
+            String codes = AgenceByPole.stream().map(s -> "'" + s + "'").collect(Collectors.joining(", "));
+            q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
+        }else{
+            getFilteredQuery(iduser,"null", "null", "no");
         }
         return q;
     }

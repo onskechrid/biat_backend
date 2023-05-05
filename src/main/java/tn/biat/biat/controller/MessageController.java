@@ -190,6 +190,13 @@ public class MessageController {
         );
     }
 
+    @PostMapping("/getByIds3")
+    public ResponseEntity<Map<String, String>> getClassificationByIds3(@RequestBody() List<String> list){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassificationByIds3(list)
+        );
+    }
+
 
 
     @GetMapping("/getClassifiedClientsNumber")
@@ -203,6 +210,13 @@ public class MessageController {
     public ResponseEntity<Integer> getEnattenteClientsNumber(){
         return ResponseEntity.status(HttpStatus.OK).body(
                 iMessageService.getEnattenteClientsNumber()
+        );
+    }
+
+    @GetMapping("/getDeposeClientsNumber")
+    public ResponseEntity<Integer> getDeposeClientsNumber(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getDeposeClientsNumber()
         );
     }
 
@@ -238,10 +252,10 @@ public class MessageController {
         );
     }
 
-    @GetMapping("/getFilteredQuery2/{pt}/{value}")
-    public ResponseEntity<QueryDto> getFilteredQuery(@PathVariable("pt") String profileType,@PathVariable("value") String value){
+    @GetMapping("/getFilteredQuery2/{iduser}/{a}/{z}/{r}/{p}")
+    public ResponseEntity<QueryDto> getFilteredQuery2(@PathVariable("iduser") Long iduser,@PathVariable("a") String agence, @PathVariable("z") String zone, @PathVariable("r") String region, @PathVariable("p") String pole){
         QueryDto qq = new QueryDto();
-        qq.query = iMessageService.getFilteredQuery2(profileType,value);
+        qq.query = iMessageService.getFilteredQuery2(iduser, agence,zone, region, pole);
         return ResponseEntity.status(HttpStatus.OK).body(
                 qq
         );

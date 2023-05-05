@@ -178,10 +178,10 @@ public class AttachementService implements IAttachementService {
             throw new FileNotFoundException(filename + " was not found on the server");
         }
         Resource resource = new UrlResource(filePath.toUri());
-        HttpHeaders httpHeaders = new HttpHeaders();
+        /*HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add("File-Name", filename);
         httpHeaders.add(CONTENT_DISPOSITION, "attachment;File-Name= " + filename);
-        System.out.println(resource);
+        System.out.println(resource);*/
         return resource;
     }
 
@@ -288,6 +288,7 @@ public class AttachementService implements IAttachementService {
                     if (codes.contains(data.get(l).get(j))) {
                         finaldata.add(data.get(l));
                         writeToExcel(finaldata, newFileName, iduser);
+                        System.err.println(newFileName);
                         res = downloadFiles(newFileName);
                     }
                 }

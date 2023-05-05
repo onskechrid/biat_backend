@@ -52,10 +52,13 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation'", nativeQuery = true)
     public Integer getClassifiedClientsNumber();
 
-    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'En attente'", nativeQuery = true)
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'CI'", nativeQuery = true)
     public Integer getEnattenteClientsNumber();
 
-    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'En attente' and status = 'Refus'", nativeQuery = true)
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'Déposé'", nativeQuery = true)
+    public Integer getDeposeClientsNumber();
+
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Refus'", nativeQuery = true)
     public Integer getRefuseeClientsNumber();
 
     @Query(value = "SELECT * FROM \"Message\" WHERE compteclient = :account", nativeQuery = true)
