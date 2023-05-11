@@ -102,7 +102,7 @@ public class MessageService implements IMessageService {
         message.setAttachements(null);
         if(message.getType().equals("MESSAGE")){
             message.setProcessStatus("Sent");
-        }else if(message.getType().equals("CLASSIFICATION")){
+        }else if(message.getType().equals("CLASSIFICATION") || message.getType().equals("ReCLASSIFICATION")){
             message.setProcessStatus("Déposé");
         }else {
             message.setProcessStatus("Déposée");
