@@ -1,15 +1,16 @@
 package tn.biat.biat.services.implementations;
 
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.poi.ss.formula.*;
+import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.xssf.usermodel.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.core.io.*;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -38,11 +39,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import tn.biat.biat.services.ITreeService;
 
 import static java.nio.file.Paths.get;
-import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
 
 
 @Service
@@ -178,10 +177,6 @@ public class AttachementService implements IAttachementService {
             throw new FileNotFoundException(filename + " was not found on the server");
         }
         Resource resource = new UrlResource(filePath.toUri());
-        /*HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add("File-Name", filename);
-        httpHeaders.add(CONTENT_DISPOSITION, "attachment;File-Name= " + filename);
-        System.out.println(resource);*/
         return resource;
     }
 
@@ -287,7 +282,19 @@ public class AttachementService implements IAttachementService {
                 if (ss.equals("account")) {
                     if (codes.contains(data.get(l).get(j))) {
                         finaldata.add(data.get(l));
-                        writeToExcel(finaldata, newFileName, iduser);
+                        List<List<String>> d = new ArrayList<>();
+                        for (int y = 1; y <= finaldata.size() - 1; y++) {
+                            List<String> innerList = finaldata.get(y);
+                            List<String> filteredList = new ArrayList<>();
+
+                            for (String item : innerList) {
+                                item = item.replaceAll("\\.0$", ""); // Remove ".0" at the end of the string
+                                filteredList.add(item);
+                            }
+
+                            d.add(filteredList);
+                        }
+                        writeToExcel(d, newFileName,iduser);
                         System.err.println(newFileName);
                         res = downloadFiles(newFileName);
                     }
@@ -299,29 +306,138 @@ public class AttachementService implements IAttachementService {
         return res;
     }
 
-    public void writeToExcel(List<List<String>> finaldata, String fileName ,Long iduser) throws IOException {
+    public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
+        FileInputStream templateFile = new FileInputStream(DIRECTORY + "template.xlsx");
+        Workbook workbook = new XSSFWorkbook(templateFile);
+        Sheet sheet = workbook.getSheetAt(0);
+
+        int rowIndex = 10; // Start writing data from the 11th row
+        int columnIndex = 3; // Start writing data from the 4th column
+
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);
+        style.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        for (List<String> rowData : data) {
+            Row row1 = sheet.createRow(rowIndex);
+            Row row2 = sheet.createRow(rowIndex+1);
+            boolean isFirstIteration = true;
+
+            for (String cellData : rowData) {
+                Cell cell1 = row1.createCell(columnIndex);
+                Cell cell2 = row2.createCell(columnIndex);
+                cell1.setCellValue(cellData);
+                if (!isFirstIteration) {
+                    cell2.setCellValue(cellData);
+                }
+
+                CellRangeAddress mergedRegion = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex + 2);
+                sheet.addMergedRegion(mergedRegion);
+
+                columnIndex += 3;
+                isFirstIteration = false;
+            }
+            rowIndex += 2; // Increment the rowIndex by 2 for the merged rows
+            columnIndex = 3; // Reset the columnIndex for the next row
+        }
+
+
+        FileOutputStream outputFile = new FileOutputStream(DIRECTORY + newFileName);
+        workbook.write(outputFile);
+
+        templateFile.close();
+        outputFile.close();
+        workbook.close();
+    }
+
+
+
+    /*public void writeToExcel(List<List<String>> finaldata, String fileName, Long iduser) throws IOException {
         // create a new workbook and sheet
         XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Sheet1");
+        XSSFSheet sheet = workbook.createSheet("Liste des clients à noter");
         User u = userService.getUserById(iduser);
-        // write data to sheet
-        int rowNum = 0;
-        for (List<String> row : finaldata){
+
+        // Center the table horizontally and vertically
+        sheet.setHorizontallyCenter(true);
+        sheet.setVerticallyCenter(true);
+
+        // Set the column widths
+        sheet.setColumnWidth(2, 10000);
+        sheet.setColumnWidth(3, 10000);
+        sheet.setColumnWidth(4, 10000);
+        sheet.setColumnWidth(5, 10000);
+
+        // Create the cell style
+        CellStyle cellStyle = workbook.createCellStyle();
+        Font font = workbook.createFont();
+        font.setBold(true);
+        font.setColor(IndexedColors.WHITE.getIndex());
+        cellStyle.setFont(font);
+        cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
+        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        cellStyle.setAlignment(HorizontalAlignment.CENTER);
+
+        // Add the logo to the sheet
+        Drawing<?> drawing = sheet.createDrawingPatriarch();
+        ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 2, 1, 3, 2); // Set the anchor coordinates to cover the first cell
+        anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_AND_RESIZE); // Set the anchor type
+        InputStream logoInputStream = new ClassPathResource("logo.png").getInputStream();
+        byte[] logoBytes = IOUtils.toByteArray(logoInputStream);
+        int logoIndex = workbook.addPicture(logoBytes, Workbook.PICTURE_TYPE_PNG);
+        Picture picture = drawing.createPicture(anchor, logoIndex);
+        picture.resize(0.5, 1);
+
+        // Create the title cell
+        Row titleRow = sheet.createRow(0);
+        Cell titleCell = titleRow.createCell(0);
+        titleCell.setCellValue("Liste des clients à noter");
+        CellStyle titleStyle = workbook.createCellStyle();
+        Font titleFont = workbook.createFont();
+        titleFont.setBold(true);
+        titleFont.setFontName("Arial Black");
+        titleFont.setColor(IndexedColors.BLUE.getIndex());
+        titleFont.setFontHeightInPoints((short) 26);
+        titleStyle.setFont(titleFont);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleCell.setCellStyle(titleStyle);
+
+        // Set the height of the first row
+        titleRow.setHeightInPoints(100);
+
+        // Set the background color for the first row
+        titleStyle.setFillForegroundColor(IndexedColors.PALE_BLUE.getIndex());
+        titleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        // Merge the cells in the first row
+        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
+
+        // Write data to sheet
+        int rowNum = 2;
+        for (List<String> row : finaldata) {
             Row sheetRow = sheet.createRow(rowNum++);
-            int colNum = 0;
+            int colNum = 3;
             for (String cellValue : row) {
                 Cell cell = sheetRow.createCell(colNum++);
                 cell.setCellValue(cellValue);
+                cell.setCellStyle(cellStyle);
             }
         }
-        // save workbook to file
-        File fil = new File(DIRECTORY+ fileName);
-        if(fil.delete()) System.err.println("yes"); else System.err.println("no");
-        FileOutputStream outputStream = new FileOutputStream(DIRECTORY+ fileName);
+
+        // Save workbook to file
+        File fil = new File(DIRECTORY + fileName);
+        if (fil.delete()) {
+            System.err.println("yes");
+        } else {
+            System.err.println("no");
+        }
+
+        FileOutputStream outputStream = new FileOutputStream(DIRECTORY + fileName);
         workbook.write(outputStream);
         workbook.close();
         outputStream.close();
-    }
+    }*/
+
 
     private static char randomChar() {
         int rand = new Random().nextInt(52);
@@ -403,5 +519,34 @@ public class AttachementService implements IAttachementService {
                 }
             }
         }
+    }
+
+
+
+    @Override
+    public Resource generateExcelTemplate() throws IOException {
+        // Créez un nouveau classeur Excel
+        Workbook workbook = new XSSFWorkbook();
+
+        // Créez une feuille dans le classeur
+        Sheet sheet = workbook.createSheet("Template");
+
+        // Créez des cellules et ajoutez des valeurs
+        Row headerRow = sheet.createRow(0);
+        Cell headerCell = headerRow.createCell(0);
+        headerCell.setCellValue("Nom");
+
+        // ...
+
+        // Convertissez le classeur en tableau de bytes
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        workbook.write(outputStream);
+        workbook.close();
+
+        // Créez une ressource ByteArrayResource à partir du tableau de bytes
+        byte[] bytes = outputStream.toByteArray();
+        Resource resource = new ByteArrayResource(bytes);
+
+        return resource;
     }
 }
