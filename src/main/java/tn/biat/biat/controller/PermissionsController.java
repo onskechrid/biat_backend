@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.*;
 import tn.biat.biat.entities.otherDB.Permissions;
 import tn.biat.biat.services.IPermissionsService;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/permissions")
 @RequiredArgsConstructor
@@ -18,6 +20,15 @@ public class PermissionsController {
 
     @Autowired
     IPermissionsService iPermissionsService;
+
+
+    @GetMapping("/getPermissionsByMenuId/{idmenu}")
+    public ResponseEntity<List<Permissions>> getByMenuId(@PathVariable("idmenu") Long idmenu){
+        List<Permissions> b = iPermissionsService.getByMenuId(idmenu);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                b
+        );
+    }
 
 
     @GetMapping("/delete/{idmenu}")
