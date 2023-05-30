@@ -23,4 +23,5 @@ public class Function implements Serializable {
     private String query;
     private String queryexcel;
     private int status;
+    private String creator;
 }

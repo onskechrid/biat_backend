@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 import tn.biat.biat.entities.otherDB.*;
 import tn.biat.biat.repository.ComposantRepository;
 import tn.biat.biat.repository.MenuRepository;
-import tn.biat.biat.services.IMenuService;
-import tn.biat.biat.services.IPermissionsService;
-import tn.biat.biat.services.IProfilesService;
-import tn.biat.biat.services.IUrlService;
+import tn.biat.biat.services.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -168,6 +165,7 @@ public class MenuService implements IMenuService {
     public boolean delete(Long idmenu) {
         Menu menu = menuRepository.findById(idmenu).orElse(null);
         List<Permissions> list = iPermissionsService.getByMenuId(idmenu);
+        List<Composant> listComposants = this.get(idmenu).getComposants();
         if(menu == null) {
             return false;
         }else if(list.size() == 0) {
@@ -191,6 +189,35 @@ public class MenuService implements IMenuService {
                 String QUERY1 ="DELETE FROM \"Permissions\" WHERE \"id\" ="+p.getId();
                 try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
                     try (PreparedStatement st = conn.prepareStatement(QUERY1)) {
+                        int result = st.executeUpdate();
+                        if (result == 0) {
+                            System.out.println("No rows affected.");
+                        } else {
+                            System.out.println(result + " rows affected.");
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            for(Composant c : listComposants){
+                String QUERY2 ="DELETE FROM \"Profile_permissions\" WHERE \"permissions_id\" ="+c.getId();
+                try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                    try (PreparedStatement st = conn.prepareStatement(QUERY2)) {
+                        int result = st.executeUpdate();
+                        if (result == 0) {
+                            System.out.println("No rows affected.");
+                        } else {
+                            System.out.println(result + " rows affected.");
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+                String QUERY3 ="DELETE FROM public.\"Menu_composants\" WHERE composants_id="+c.getId();
+                try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                    try (PreparedStatement st = conn.prepareStatement(QUERY3)) {
                         int result = st.executeUpdate();
                         if (result == 0) {
                             System.out.println("No rows affected.");

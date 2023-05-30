@@ -16,6 +16,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -46,6 +47,8 @@ public class ComposantService implements IComposantService {
         composant.setTitle(composant.getTitle());
         composant.setQuery(composant.getQuery());
         composant.setDescription(composant.getDescription());
+        composant.setCreatedBy(composant.getCreatedBy());
+        composant.setTimestamp(LocalDateTime.now());
         composantRepository.save(composant);
         historyService.updateUserHistories("ADD", "Add new composant");
         return composant;

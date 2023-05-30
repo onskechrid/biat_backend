@@ -13,7 +13,11 @@ import java.io.Serializable;
 @NoArgsConstructor
 @Entity
 @Table(name = "\"Url\"", schema = "public")
-public class Url implements Serializable {
+public class
+
+
+
+Url implements Serializable {
 
     @Id
     @Column(name = "id")

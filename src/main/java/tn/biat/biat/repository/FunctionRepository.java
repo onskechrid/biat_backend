@@ -13,7 +13,7 @@ import tn.biat.biat.entities.otherDB.Function;
 @Repository
 public interface FunctionRepository  extends JpaRepository<Function, Long> {
 
-    @Query(value = "select count(*) as n from public.\"Functions\" where status='0';" , nativeQuery = true)
+    @Query(value = "select count(*) as n from public.\"Functions\" where status='1';" , nativeQuery = true)
     public Number getNbrWrongFunctions();
 
 

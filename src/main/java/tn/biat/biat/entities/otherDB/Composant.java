@@ -4,6 +4,7 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -23,5 +24,7 @@ public class Composant implements Serializable {
     private String title;
     private String query;
     private String description;
+    private String createdBy;
+    private LocalDateTime timestamp;
 
 }

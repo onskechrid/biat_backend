@@ -42,6 +42,7 @@ public class FunctionService implements IFunctionService {
         function.setQuery(function.getQuery());
         function.setQueryexcel(function.getQueryexcel());
         function.setStatus(function.getStatus());
+        function.setCreator(function.getCreator());
         functionRepository.save(function);
         historyService.updateUserHistories("ADD", "Add new function");
         return function;
