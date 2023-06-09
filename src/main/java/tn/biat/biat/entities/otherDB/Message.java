@@ -43,4 +43,5 @@ public class Message implements Serializable {
     private List<Attachement> attachements;
     private Long idResponseMessage;
     private String status; // OK: validée - KO: Refusée - MI: Demande plus d'informations // hiyya decision ta3 classification
+    private String url;
 }

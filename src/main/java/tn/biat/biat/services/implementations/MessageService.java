@@ -100,6 +100,7 @@ public class MessageService implements IMessageService {
         message.setText(message.getText());
         message.setTimestamp(LocalDateTime.now());
         message.setAttachements(null);
+        message.setUrl(message.getUrl());
         if(message.getType().equals("MESSAGE")){
             message.setProcessStatus("Sent");
         }else if(message.getType().equals("CLASSIFICATION") || message.getType().equals("ReCLASSIFICATION")){

@@ -74,9 +74,10 @@ public class ProfilesController {
         );
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<Boolean> delete(@PathVariable("id") Long id){
-        boolean b = iProfilesService.delete(id);
+    @DeleteMapping("/delete/{name}")
+    public ResponseEntity<Boolean> delete(@PathVariable("name") String name){
+        System.err.println(name);
+        boolean b = iProfilesService.delete(name);
         if(!b){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     false

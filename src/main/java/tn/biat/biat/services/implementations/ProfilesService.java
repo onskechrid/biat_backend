@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import tn.biat.biat.entities.otherDB.Menu;
 import tn.biat.biat.entities.otherDB.Permissions;
 import tn.biat.biat.entities.otherDB.Profile;
+import tn.biat.biat.entities.otherDB.User;
 import tn.biat.biat.repository.PermissionsRepository;
 import tn.biat.biat.repository.ProfilesRepository;
 import tn.biat.biat.services.IMenuService;
+import tn.biat.biat.services.IPermissionsService;
 import tn.biat.biat.services.IProfilesService;
 
 import java.sql.Connection;
@@ -60,14 +62,29 @@ public class ProfilesService implements IProfilesService {
 
 
     @Override
-    public boolean delete(Long id) {
-        Profile profile = profileRepository.findById(id).orElse(null);
-        if(profile != null){
+    public boolean delete(String name) {
+        Profile profile = this.getByProfileType(name);
+        System.err.println(profile);
+        if(profile == null){
+            return false;
+        }else {
+            String QUERY = "UPDATE public.\"Users\" SET profile='NewUser' WHERE profile = '" + name + "';";
+            try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                try (PreparedStatement st = conn.prepareStatement(QUERY)) {
+                    int result = st.executeUpdate();
+                    if (result == 0) {
+                        System.out.println("No rows affected.");
+                    } else {
+                        System.out.println(result + " rows affected.");
+                    }
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
             profileRepository.delete(profile);
-            return true;
         }
         historyService.updateUserHistories("DELETE", "Delete profile");
-        return false;
+        return true;
     }
 
     @Override

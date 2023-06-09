@@ -11,7 +11,7 @@ public interface IProfilesService {
     List<Profile> getAll();
     Profile get(Long id);
     Profile add(Profile profile);
-    boolean delete(Long id);
+    boolean delete(String name);
     Profile getByProfileType(String pt);
     List<Permissions> getAllProfilePermissions(Long id);
     List<Permissions> getAllProfilePermissionsByProfiletype(String pt);
