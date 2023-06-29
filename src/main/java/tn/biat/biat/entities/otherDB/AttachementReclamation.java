@@ -14,17 +14,27 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "\"Attachement\"", schema = "public")
-public class Attachement implements Serializable {
+@Table(name = "\"AttachementReclamation\"", schema = "public")
+public class AttachementReclamation implements Serializable {
+
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
     private String name;
     private String size;
     private String type;
     private String path;
+
+    private String NC;
+    private String SF;
+
+    private String dateValeur;
+    private String libelleOperation;
+    private String Ref;
+    private String dateOperation;
+    private String montant;
 
 }

@@ -51,7 +51,6 @@ public class AttachementController {
     }
 
 
-
     // define a location
     public static final String DIRECTORY = "C:\\Users\\onske\\Desktop\\biat2\\src\\main\\resources\\static\\files";
 

@@ -19,6 +19,9 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query(value = "SELECT COUNT(*) FROM \"Message\" m WHERE processStatus IN ('Traitée') and type = 'RECLAMATION';" , nativeQuery = true)
     public int numberTreatedMessages();
 
+    @Query(value = "SELECT COUNT(*) FROM \"Message\" m WHERE processStatus IN ('Déposé') and type = 'CLASSIFICATION';" , nativeQuery = true)
+    public int numberClass();
+
     @Query(value = "SELECT \"messages_id\" FROM \"Chat_messages\" cm WHERE \"Chat_chat_id\" = :id", nativeQuery = true)
     public List<Long> getMessagesForChat(@Param("id") Long id);
 
@@ -64,5 +67,12 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query(value = "SELECT * FROM \"Message\" WHERE compteclient = :account", nativeQuery = true)
     public Client getClientByAccount(@Param("account") String account);
 
+    @Query(value = "select motif from risk_cpte where cpte = ':cpte'", nativeQuery = true)
+    public String getMotif(@Param("cpte") String cpte);
 
+    @Query(value = "select periode from risk_cpte where cpte = ':cpte'", nativeQuery = true)
+    public String getPeriode(@Param("cpte") String cpte);
+
+    @Query(value = "select date_ech from dwm_pd_payment_due_details dppdd where imp_pr = ':montant'", nativeQuery = true)
+    public String getDateEch(@Param("montant") String montant);
 }

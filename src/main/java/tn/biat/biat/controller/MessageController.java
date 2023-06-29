@@ -1,5 +1,6 @@
 package tn.biat.biat.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
@@ -258,6 +259,46 @@ public class MessageController {
         qq.query = iMessageService.getFilteredQuery2(iduser, agence,zone, region, pole);
         return ResponseEntity.status(HttpStatus.OK).body(
                 qq
+        );
+    }
+
+    @GetMapping("/getPeriode/{cpte}")
+    public ResponseEntity<String> getPeriode(@PathVariable("cpte") String cpte){
+        String j = iMessageService.getPeriode(cpte);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                j
+        );
+    }
+
+    @GetMapping("/getNumberJoursTotal")
+    public ResponseEntity<String> getNumberJoursTotal(){
+        String j = iMessageService.getNumberJoursTotal();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                j
+        );
+    }
+
+    @GetMapping("/pp/{id}")
+    public ResponseEntity<List<String>> pp(@PathVariable("id") Long id){
+        List<String> j = iMessageService.getPaiementPrincipal(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                j
+        );
+    }
+
+    @GetMapping("/getAgiosByDate/{p}/{date}")
+    public ResponseEntity<String> getAgiosByDate(@PathVariable("p") String periode, @PathVariable("date") String date){
+        String j = iMessageService.getAgiosByDate(periode,date);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                j
+        );
+    }
+
+    @GetMapping("/cla/{id}")
+    public ResponseEntity<Boolean> classificationAutomatique(@PathVariable("id") Long id){
+        boolean b = iMessageService.classificationAutomatique(id);
+        return ResponseEntity.status(HttpStatus.OK).body(
+                b
         );
     }
 

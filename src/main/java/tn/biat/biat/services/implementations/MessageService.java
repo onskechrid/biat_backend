@@ -2,35 +2,39 @@ package tn.biat.biat.services.implementations;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
-import org.json.JSONObject;
+import org.python.antlr.ast.Str;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import tn.biat.biat.entities.otherDB.*;
+import tn.biat.biat.repository.AttachementReclamationRepository;
 import tn.biat.biat.repository.AttachementRepository;
 import tn.biat.biat.repository.MessageRepository;
 import tn.biat.biat.repository.TreeRepository;
-import tn.biat.biat.repository.UserRepository;
 import tn.biat.biat.services.*;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.chrono.JapaneseDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +45,8 @@ public class MessageService implements IMessageService {
     MessageRepository messageRepository;
     @Autowired
     AttachementRepository attachementRepository;
+    @Autowired
+    AttachementReclamationRepository attachementReclamationRepository;
     @Autowired
     IFunctionService iFunctionService;
     @Autowired
@@ -53,6 +59,8 @@ public class MessageService implements IMessageService {
     HistoryService historyService;
     @Autowired
     JavaMailSender javaMailSender;
+    @Autowired
+    AnalyseService analyseService;
 
     @Value("${spring.datasource.url}")
     private String DBURL;
@@ -80,7 +88,6 @@ public class MessageService implements IMessageService {
         message.setIdResponseMessage(message.getIdResponseMessage());
         if(message.getIdResponseMessage() != null){
             Message m = messageRepository.findById(message.getIdResponseMessage()).orElse(null);
-            System.out.println(m);
             if(m == null){
                 return null;
             }else{
@@ -100,6 +107,7 @@ public class MessageService implements IMessageService {
         message.setText(message.getText());
         message.setTimestamp(LocalDateTime.now());
         message.setAttachements(null);
+        message.setAttachementReclamations(null);
         message.setUrl(message.getUrl());
         if(message.getType().equals("MESSAGE")){
             message.setProcessStatus("Sent");
@@ -117,11 +125,11 @@ public class MessageService implements IMessageService {
         }else{
             historyService.updateUserHistories("ADD","passé une réclamation de classification '");
         }
-        this.sendEmail("onskechrid1999@gmail.com","Réclamation : "+message.getType(), "Bonjour,\n" +
+        /*this.sendEmail("onskechrid1999@gmail.com","Réclamation : "+message.getType(), "Bonjour,\n" +
                 "\n" +
                 "Je souhaite vous informer qu'une nouvelle réclamation a été ajoutée par "+message.getSender()+" concernant la situation du client titulaire du compte "+message.getCompteclient()+" et du code "+message.getCodeclient()+".\n" +
                 "\n" +
-                "Cordialement,");
+                "Cordialement,");*/
 
         return message;
     }
@@ -183,38 +191,318 @@ public class MessageService implements IMessageService {
         }
     }
 
+    public static String extractDateValeur(String inputString) {
+        // Regular expression pattern to match the date pattern "dd MMM yy"
+        String pattern = "\\b\\d{2} [A-Z]{3} \\d{2}\\b";
+
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(inputString);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null; // Return null if the date pattern is not found
+    }
+    public static String extractLibelleOperation(String inputString) {
+        String s = "";
+        s = inputString.replace(extractDateValeur(inputString),"");
+        String delimiter = " PD";
+        int delimiterIndex = inputString.indexOf(delimiter);
+
+        if (delimiterIndex != -1) {
+            return s.substring(0, delimiterIndex);
+        }
+        return null;
+    }
+
+    public static String extractMontant(String inputString) {
+        String delimiter = " ";
+        int delimiterIndex = inputString.lastIndexOf(delimiter);
+        if (delimiterIndex != -1) {
+            return inputString.substring(delimiterIndex + delimiter.length());
+        }
+        return null; // Return null if the delimiter or the substring are not found
+    }
+
+    public static String extractDateOperation(String inputString) {
+        String pattern = "\\b\\d{2} [A-Z]{3} \\d{2}\\b";
+        Pattern regex = Pattern.compile(pattern);
+        Matcher matcher = regex.matcher(inputString);
+
+        String secondDate = null;
+        int count = 0;
+
+        while (matcher.find()) {
+            count++;
+            if (count == 2) {
+                secondDate = matcher.group();
+                break;
+            }
+        }
+
+        return secondDate;
+    }
+
+    public static String extractRef(String inputString) {
+        String startSubstring = "PD";
+        String endDelimiter = " ";
+        int startIndex = inputString.indexOf(startSubstring);
+        int endIndex = inputString.indexOf(endDelimiter, startIndex + startSubstring.length());
+
+        if (startIndex != -1 && endIndex != -1) {
+            String substring = inputString.substring(startIndex, endIndex);
+            return substring.replace(';', '\\');
+        }
+        return null; // Return null if the start substring or the substring are not found
+    }
     @Override
     public boolean updateReclamationAttachements(Long id, String name, String size, String type,String url){
         Message m = this.getById(id);
         if(m==null){
             return false;
         }else{
-            Attachement att = new Attachement();
-            att.setName(name);
-            att.setType(type);
-            att.setSize(size);
-            att.setPath(url);
-            attachementRepository.save(att);
-            System.out.println(att);
-            String QUERY ="INSERT INTO public.\"Message_attachements\" (\"Message_id\", attachements_id) VALUES ("+m.getId()+","+att.getId()+");";
-            try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
-                try (PreparedStatement st = conn.prepareStatement(QUERY)) {
-                    int result = st.executeUpdate(); // execute update query
+            List<String> list = new ArrayList<>();
+            if (m.getType().equals("CLASSIFICATION") && type.equals("pdf")) {
+                list = analyseService.extractLinesWithReferenceFromPdf();
+                for(String line : list) {
+                    AttachementReclamation attR = new AttachementReclamation();
+                    if (extractLibelleOperation(line) != null){
+                        attR.setName(name);
+                        attR.setType(type);
+                        attR.setSize(size);
+                        attR.setPath(url);
+                        attR.setNC(analyseService.extractNumeroCompteFromPdf());
+                        attR.setSF(analyseService.extractSoldeFinValuesFromPdf());
 
-                    // check if the query affected any rows
-                    if (result == 0) {
-                        System.out.println("No rows affected.");
-                    } else {
-                        System.out.println(result + " rows affected.");
+                        attR.setDateValeur(extractDateValeur(line));
+                        attR.setLibelleOperation(extractLibelleOperation(line));
+                        attR.setRef(extractRef(line));
+                        attR.setDateOperation(extractDateOperation(line));
+                        attR.setMontant(extractMontant(line));
+
+                        attachementReclamationRepository.save(attR);
+                        String QUERY = "INSERT INTO public.\"Message_attachementReclamations\" (\"Message_id\", \"attachementReclamations_id\") VALUES(" + m.getId() + ", " + attR.getId() + ");";
+                        try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                            try (PreparedStatement st = conn.prepareStatement(QUERY)) {
+                                int result = st.executeUpdate(); // execute update query
+
+                                // check if the query affected any rows
+                                if (result == 0) {
+                                    System.out.println("No rows affected.");
+                                } else {
+                                    System.out.println(result + " rows affected.");
+                                }
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
+            }else if ((m.getType().equals("CLASSIFICATION") && type.equals("jpg")) || m.getType().equals("CLASSIFICATION") && type.equals("png")) {
+                for(String line : analyseService.extractLinesWithReferenceFromImg()) {
+                    AttachementReclamation attR = new AttachementReclamation();
+                    if (extractLibelleOperation(line) != null){
+                        attR.setName(name);
+                        attR.setType(type);
+                        attR.setSize(size);
+                        attR.setPath(url);
+                        attR.setNC(analyseService.extractNumeroCompteFromPdf());
+                        attR.setSF(analyseService.extractSoldeFinValuesFromPdf());
 
+                        attR.setDateValeur(extractDateValeur(line));
+                        attR.setLibelleOperation(extractLibelleOperation(line));
+                        attR.setRef(extractRef(line));
+                        attR.setDateOperation(extractDateOperation(line));
+                        attR.setMontant(extractMontant(line));
+
+                        attachementReclamationRepository.save(attR);
+                        String QUERY = "INSERT INTO public.\"Message_attachementReclamations\" (\"Message_id\", \"attachementReclamations_id\") VALUES(" + m.getId() + ", " + attR.getId() + ");";
+                        try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                            try (PreparedStatement st = conn.prepareStatement(QUERY)) {
+                                int result = st.executeUpdate(); // execute update query
+
+                                // check if the query affected any rows
+                                if (result == 0) {
+                                    System.out.println("No rows affected.");
+                                } else {
+                                    System.out.println(result + " rows affected.");
+                                }
+                            }
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }else{
+                Attachement att = new Attachement();
+                att.setName(name);
+                att.setType(type);
+                att.setSize(size);
+                att.setPath(url);
+                attachementRepository.save(att);
+                String QUERY ="INSERT INTO public.\"Message_attachements\" (\"Message_id\", attachements_id) VALUES ("+m.getId()+","+att.getId()+");";
+                try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                    try (PreparedStatement st = conn.prepareStatement(QUERY)) {
+                        int result = st.executeUpdate(); // execute update query
+                        // check if the query affected any rows
+                        if (result == 0) {
+                            System.out.println("No rows affected.");
+                        } else {
+                            System.out.println(result + " rows affected.");
+                        }
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
         }
         historyService.updateUserHistories("UPDATE", "Update menu attachements");
         return true;
+    }
+
+    @Override
+    public String getNumberJoursTotal(){
+        String q = "WITH string_list (date_string) AS (\n" +
+                "  SELECT date_ech\n" +
+                "  FROM dwm_pd_payment_due_details\n" +
+                "  WHERE cpte = 'K320022877'\n" +
+                ") SELECT\n" +
+                "  sum(TO_DATE('31/03/2023', 'DD/MM/YY') - TO_DATE(date_string, 'DD/MM/YY') + 1) AS days_between\n" +
+                "FROM string_list;";
+        JSONArray x = iFunctionService.queryinput(q);
+        String ss = x.toString().replace("[{\"days_between\":","");
+        ss = ss.replace("}]","");
+        return ss;
+    }
+
+    @Override
+    public String getPeriode(String cpte){
+        String q = "select periode from risk_cpte rc where cpte = '"+cpte+"'";
+        JSONArray j = iFunctionService.queryinput(q);
+        String s = j.toString().replace("[{\"periode\":\"","");
+        s = s.replace("\"}]","");
+        s = s.replace("\\/","/");
+        return s;
+    }
+    @Override
+    public String getAgiosByDate(String periode, String date){ // hedhy taatyk agio selon date_ech fi periode mou3ayna
+        String q = "WITH string_list (date_string) AS (\n" +
+                "  SELECT date_ech\n" +
+                "  FROM dwm_pd_payment_due_details\n" +
+                "  WHERE cpte = 'K320022877'\n" +
+                ")\n" +
+                "SELECT\n" +
+                "  (TO_DATE('"+periode+"', 'MM/DD/YY') - TO_DATE(date_string, 'DD/MM/YY')) AS days_between\n" +
+                "FROM string_list where date_string = '"+date+"';";
+        JSONArray x = iFunctionService.queryinput(q);
+        String ss = x.toString().replace("[{\"days_between\":","");
+        ss = ss.replace("}]","");
+        return ss;
+    }
+
+    @Override
+    public List<String> getPaiementPrincipal(Long id){
+        Message message = getById(id);
+        List<String> list = new ArrayList<>();
+        if(message == null){
+            return null;
+        }else {
+            List<AttachementReclamation> listPD = message.getAttachementReclamations();
+            System.err.println(listPD);
+            for (AttachementReclamation attR : listPD) {
+                System.err.println(attR.getLibelleOperation());
+                if(attR.getLibelleOperation().startsWith(" Paiement Principal")){
+                    list.add(attR.getMontant().replace("-",""));
+                }
+            }
+        }
+        return list;
+    }
+    public String getDateEch(String montant){
+        String s = "select date_ech from dwm_pd_payment_due_details dppdd where imp_pr = '"+montant+"'";
+        JSONArray j = iFunctionService.queryinput(s);
+        String ss = j.toString().replace("[{\"date_ech\":\"","");
+        ss = ss.replace("\"}]","");
+        ss = ss.replace("\\/","/");
+        return ss;
+    }
+
+    public String getMotif(String cpte){
+        String s = "select motif from risk_cpte where cpte = '"+cpte+"'";
+        JSONArray j = iFunctionService.queryinput(s);
+        String ss = j.toString();
+        ss = ss.replace("[{\"motif\":\"","");
+        ss = ss.replace("\"}]","");
+        return ss;
+    }
+    @Override
+    public boolean classificationAutomatique(Long id){
+        Message message = getById(id);
+        if(message == null){
+            return false;
+        }else{
+            List<AttachementReclamation> list = message.getAttachementReclamations();
+            String cpte = list.get(0).getNC();
+            String motif = this.getMotif(list.get(0).getNC());
+            message.setMotif(motif);
+            messageRepository.save(message);
+            if(motif == "G"){
+                String sf = list.get(0).getSF();
+                if (Integer.parseInt(sf) >= 0){
+                    message.setClasse(0);
+                }else{
+                    String query = "SELECT agios FROM risk_classe where cpte = '"+cpte+"' ORDER BY to_date(periode, 'MM/DD/YYYY') desc";
+                    JSONArray j = iFunctionService.queryinput(query);
+                    String s = j.toString().replace("{\"agios\":\"","");
+                    s = s.replace("\"},{\"agios\":\"",",");
+                    s = s.replace("\"}]","]");
+                    String trimmedString = s.substring(1, s.length() - 1);
+                    String[] stringArray = trimmedString.split(",");
+                    List<String> agios = Arrays.asList(stringArray);
+                    String query2 = "select sum(abs(soldcpte ::integer)) as sum from risk_classe rc where cpte = '"+cpte+"'";
+                    JSONArray j2 = iFunctionService.queryinput(query2);
+                    String solde = j2.toString().replace("{\"sum\":\"","");
+                    solde = solde.replace("\"}]","");
+                    Integer mvt = Integer.parseInt(solde) - Integer.parseInt(sf);
+                    if(Integer.parseInt(agios.get(0)) < mvt ){ // classe 1 : agios < mvt
+                        message.setClasse(1);
+                    }else if(Integer.parseInt(agios.get(1)) < mvt){ // classe 2 : agios t-1 < mvt
+                        message.setClasse(2);
+                    }else if(Integer.parseInt(agios.get(1)) + Integer.parseInt(agios.get(2)) < mvt){ // classe 3 : agios t-1 + agios t-2< mvt
+                        message.setClasse(3);
+                    }else{ // sinon classe 4 : agios t-1 + agios t-2 + agios t-3
+                        message.setClasse(4);
+                    }
+                    messageRepository.save(message);
+                }
+            }else{ // motif == "I"
+                System.err.println("ppp");
+                Integer totalAgios = 0;
+                String periode = getPeriode(list.get(0).getNC());
+                int nombreJoursTotal = Integer.parseInt(this.getNumberJoursTotal());// total agios
+                List<String> listPaiementPrincipal = getPaiementPrincipal(id);//liste des paiements illi aamalhom compte x
+                System.err.println("liste paiement principals : "+listPaiementPrincipal);
+                for(String montant : listPaiementPrincipal){
+                   totalAgios = totalAgios + (Integer.parseInt(getAgiosByDate(periode,this.getDateEch(montant))) + 1);
+                   System.err.println("total agios : "+totalAgios);
+                }
+                System.err.println(totalAgios);
+                System.err.println(nombreJoursTotal);
+                System.err.println("nombre "+(nombreJoursTotal-totalAgios));
+                if(nombreJoursTotal - totalAgios > 360){
+                    message.setClasse(4);
+                }else if(nombreJoursTotal - totalAgios > 180){
+                    message.setClasse(3);
+                }else if(nombreJoursTotal - totalAgios > 90){
+                    message.setClasse(2);
+                }else{
+                    message.setClasse(1);
+                }
+                message.setStatus("Acceptation");
+                message.setProcessStatus("Classé");
+                messageRepository.save(message);
+            }
+            return true;
+        }
     }
 
     @Override
@@ -319,7 +607,6 @@ public class MessageService implements IMessageService {
             Long id = jsonNode.get("id").asLong();
             list.add(id);
         }
-        System.out.println(list);
         return list;
     }
 
@@ -352,7 +639,6 @@ public class MessageService implements IMessageService {
 
     @Override
     public Map<String, String> getClassificationByIds3(List<String> list){
-        System.err.println("dkhalllllllll");
         Map<String, String> map = new HashMap<>();
         for(String acc : list){
             Message cc = messageRepository.getMessageBYCompteClient(acc);
@@ -450,7 +736,6 @@ public class MessageService implements IMessageService {
                 }
             }else if(Objects.equals(u.getProfile().getProfileType(), "PCB") || Objects.equals(u.getProfile().getProfileType(), "PBD")) {
                 List<String> AgenceByPole = iTreeService.getAgenceByPole(u.getId());
-                System.out.println(AgenceByPole);
                 String codes = AgenceByPole.stream().map(s -> "'" + s + "'").collect(Collectors.joining(", "));
                 if(!processStatus.equals("null")){
                     q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.processstatus = '"+processStatus+"' and cl.code in ("+u.getLibelle()+")";
@@ -463,13 +748,10 @@ public class MessageService implements IMessageService {
                 }
             }else{
                 if(!processStatus.equals("null")){
-                    System.err.println(processStatus);
                     q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.processstatus = '"+processStatus+"'";
                 }else if(!status.equals("null")){
-                    System.err.println("s "+status);
                     q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.status = '"+status+"'";
                 }else if(all.equals("yes")){
-                    System.err.println(all);
                     q = QUERY;
                 }else{
                     q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and m.processstatus = 'Déposé' and m.status isnull";
@@ -483,7 +765,6 @@ public class MessageService implements IMessageService {
     public String getFilteredQuery22(String profileType,String value){
         String q = "";
 
-        System.err.println(profileType +" " + value);
         if(profileType.equals("AGENCE") || profileType.equals("CA")){
             q = QUERY + " inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code ='" + value + "'";
         }else if(profileType.equals("ZONE")||profileType.equals("GROUPE")){
@@ -496,7 +777,6 @@ public class MessageService implements IMessageService {
             q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
         }else if(profileType.equals("PCB") || profileType.equals("PBD")) {
             List<String> AgenceByPole = treeRepository.getAgencesByPole(value);
-            System.out.println(AgenceByPole);
             String codes = AgenceByPole.stream().map(s -> "'" + s + "'").collect(Collectors.joining(", "));
             q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
         }else{
@@ -520,7 +800,6 @@ public class MessageService implements IMessageService {
             q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
         }else if(!pole.equals("null") && !pole.equals("default")) {
             List<String> AgenceByPole = treeRepository.getAgencesByPole(pole);
-            System.out.println(AgenceByPole);
             String codes = AgenceByPole.stream().map(s -> "'" + s + "'").collect(Collectors.joining(", "));
             q = QUERY+" inner JOIN \"Message\" m ON t.cpte = m.compteclient where m.\"type\" = 'CLASSIFICATION' and cl.code in ("+codes+")";
         }else{

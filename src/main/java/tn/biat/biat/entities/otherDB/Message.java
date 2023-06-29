@@ -44,4 +44,10 @@ public class Message implements Serializable {
     private Long idResponseMessage;
     private String status; // OK: validée - KO: Refusée - MI: Demande plus d'informations // hiyya decision ta3 classification
     private String url;
+
+
+    //when the message type is RECLAMATION
+    @OneToMany
+    private List<AttachementReclamation> attachementReclamations;
+
 }
