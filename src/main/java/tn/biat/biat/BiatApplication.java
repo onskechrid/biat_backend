@@ -1,5 +1,6 @@
 package tn.biat.biat;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
@@ -11,7 +12,12 @@ import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.python.util.PythonInterpreter;
+import tn.biat.biat.services.IFunctionService;
 import tn.biat.biat.utils.PythonRunner;
+
+import javax.annotation.PostConstruct;
+import java.util.List;
+import java.util.Map;
 
 
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class })
@@ -22,6 +28,15 @@ public class BiatApplication{
 		SpringApplication.run(BiatApplication.class, args);
 	}
 
+	public static Map<String, List<String>> dbSchemeMap;
+	@Autowired
+	private IFunctionService functionService;
+
+	@PostConstruct
+	public void init() {
+		dbSchemeMap = functionService.getDatabaseSchema();
+		System.err.println(dbSchemeMap.toString());
+	}
 	@Bean
 	public PasswordEncoder encoder() {
 		return new BCryptPasswordEncoder();

@@ -109,4 +109,10 @@ public class FunctionController {
             iFunctionService.queryinput(QUERY)
         );
     }
+    @GetMapping("/query/match/{syl}")
+    public ResponseEntity<List<String>> matchword(@PathVariable("syl") String word){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iFunctionService.getTableAndColumnNames(word)
+        );
+    }
 }
