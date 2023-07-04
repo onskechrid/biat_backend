@@ -104,6 +104,9 @@ public class MessageService implements IMessageService {
         }
         message.setMotif(message.getMotif());
         message.setClasse(message.getClasse());
+        message.setPre_classe(message.getPre_classe());
+        message.setPre_motif(message.getPre_motif());
+        message.setValidation(false);
         message.setText(message.getText());
         message.setTimestamp(LocalDateTime.now());
         message.setAttachements(null);
@@ -125,11 +128,11 @@ public class MessageService implements IMessageService {
         }else{
             historyService.updateUserHistories("ADD","passé une réclamation de classification '");
         }
-        /*this.sendEmail("onskechrid1999@gmail.com","Réclamation : "+message.getType(), "Bonjour,\n" +
+        this.sendEmail("onskechrid1999@gmail.com","Réclamation : "+message.getType(), "Bonjour,\n" +
                 "\n" +
                 "Je souhaite vous informer qu'une nouvelle réclamation a été ajoutée par "+message.getSender()+" concernant la situation du client titulaire du compte "+message.getCompteclient()+" et du code "+message.getCodeclient()+".\n" +
                 "\n" +
-                "Cordialement,");*/
+                "Cordialement,");
 
         return message;
     }
@@ -203,15 +206,16 @@ public class MessageService implements IMessageService {
         return null; // Return null if the date pattern is not found
     }
     public static String extractLibelleOperation(String inputString) {
-        String s = "";
-        s = inputString.replace(extractDateValeur(inputString),"");
+        String date = extractDateValeur(inputString);
+        String substringAfterDate = inputString.substring(inputString.indexOf(date) + date.length());
         String delimiter = " PD";
-        int delimiterIndex = inputString.indexOf(delimiter);
+        int delimiterIndex = substringAfterDate.indexOf(delimiter);
 
         if (delimiterIndex != -1) {
-            return s.substring(0, delimiterIndex);
+            return substringAfterDate.substring(0, delimiterIndex).trim();
         }
         return null;
+
     }
 
     public static String extractMontant(String inputString) {
@@ -250,7 +254,7 @@ public class MessageService implements IMessageService {
 
         if (startIndex != -1 && endIndex != -1) {
             String substring = inputString.substring(startIndex, endIndex);
-            return substring.replace(';', '\\');
+            return substring.replaceAll("\\\\", ";");
         }
         return null; // Return null if the start substring or the substring are not found
     }
@@ -332,29 +336,29 @@ public class MessageService implements IMessageService {
                         }
                     }
                 }
-            }else{
-                Attachement att = new Attachement();
-                att.setName(name);
-                att.setType(type);
-                att.setSize(size);
-                att.setPath(url);
-                attachementRepository.save(att);
-                String QUERY ="INSERT INTO public.\"Message_attachements\" (\"Message_id\", attachements_id) VALUES ("+m.getId()+","+att.getId()+");";
-                try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
-                    try (PreparedStatement st = conn.prepareStatement(QUERY)) {
-                        int result = st.executeUpdate(); // execute update query
-                        // check if the query affected any rows
-                        if (result == 0) {
-                            System.out.println("No rows affected.");
-                        } else {
-                            System.out.println(result + " rows affected.");
-                        }
+            }
+            Attachement att = new Attachement();
+            att.setName(name);
+            att.setType(type);
+            att.setSize(size);
+            att.setPath(url);
+            attachementRepository.save(att);
+            String QUERY ="INSERT INTO public.\"Message_attachements\" (\"Message_id\", attachements_id) VALUES ("+m.getId()+","+att.getId()+");";
+            try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
+                try (PreparedStatement st = conn.prepareStatement(QUERY)) {
+                    int result = st.executeUpdate(); // execute update query
+                    // check if the query affected any rows
+                    if (result == 0) {
+                        System.out.println("No rows affected.");
+                    } else {
+                        System.out.println(result + " rows affected.");
                     }
-                } catch (SQLException e) {
-                    e.printStackTrace();
                 }
+            } catch (SQLException e) {
+                e.printStackTrace();
             }
         }
+
         historyService.updateUserHistories("UPDATE", "Update menu attachements");
         return true;
     }
@@ -386,17 +390,22 @@ public class MessageService implements IMessageService {
     @Override
     public String getAgiosByDate(String periode, String date){ // hedhy taatyk agio selon date_ech fi periode mou3ayna
         String q = "WITH string_list (date_string) AS (\n" +
-                "  SELECT date_ech\n" +
-                "  FROM dwm_pd_payment_due_details\n" +
-                "  WHERE cpte = 'K320022877'\n" +
+                "  SELECT date_ech FROM dwm_pd_payment_due_details WHERE cpte = 'K320022877'\n" +
                 ")\n" +
-                "SELECT\n" +
-                "  (TO_DATE('"+periode+"', 'MM/DD/YY') - TO_DATE(date_string, 'DD/MM/YY')) AS days_between\n" +
-                "FROM string_list where date_string = '"+date+"';";
+                "SELECT (TO_DATE('"+periode+"', 'MM/DD/YYYY') - TO_DATE(date_string, 'DD/MM/YY') +1) AS days_between\n" +
+                "FROM string_list\n" +
+                "WHERE date_string = '"+date+"';\n;";
         JSONArray x = iFunctionService.queryinput(q);
         String ss = x.toString().replace("[{\"days_between\":","");
         ss = ss.replace("}]","");
         return ss;
+    }
+
+    @Override
+    public JSONArray getAncImpTable(String cpte){
+        String query = "select cpte, periode , date_ech, imp_int, imp_pr from dwm_pd_payment_due_details dppdd where cpte ='"+cpte+"'";
+        JSONArray jsonArray = iFunctionService.queryinput(query);
+        return jsonArray;
     }
 
     @Override
@@ -405,12 +414,12 @@ public class MessageService implements IMessageService {
         List<String> list = new ArrayList<>();
         if(message == null){
             return null;
-        }else {
+        }else{
             List<AttachementReclamation> listPD = message.getAttachementReclamations();
             System.err.println(listPD);
-            for (AttachementReclamation attR : listPD) {
+            for (AttachementReclamation attR : listPD){
                 System.err.println(attR.getLibelleOperation());
-                if(attR.getLibelleOperation().startsWith(" Paiement Principal")){
+                if(attR.getLibelleOperation().startsWith("Paiement Principal")){
                     list.add(attR.getMontant().replace("-",""));
                 }
             }
@@ -426,6 +435,7 @@ public class MessageService implements IMessageService {
         return ss;
     }
 
+    @Override
     public String getMotif(String cpte){
         String s = "select motif from risk_cpte where cpte = '"+cpte+"'";
         JSONArray j = iFunctionService.queryinput(s);
@@ -443,12 +453,12 @@ public class MessageService implements IMessageService {
             List<AttachementReclamation> list = message.getAttachementReclamations();
             String cpte = list.get(0).getNC();
             String motif = this.getMotif(list.get(0).getNC());
-            message.setMotif(motif);
+            message.setPre_motif(motif);
             messageRepository.save(message);
             if(motif == "G"){
                 String sf = list.get(0).getSF();
                 if (Integer.parseInt(sf) >= 0){
-                    message.setClasse(0);
+                    message.setPre_classe(0);
                 }else{
                     String query = "SELECT agios FROM risk_classe where cpte = '"+cpte+"' ORDER BY to_date(periode, 'MM/DD/YYYY') desc";
                     JSONArray j = iFunctionService.queryinput(query);
@@ -464,13 +474,13 @@ public class MessageService implements IMessageService {
                     solde = solde.replace("\"}]","");
                     Integer mvt = Integer.parseInt(solde) - Integer.parseInt(sf);
                     if(Integer.parseInt(agios.get(0)) < mvt ){ // classe 1 : agios < mvt
-                        message.setClasse(1);
+                        message.setPre_classe(1);
                     }else if(Integer.parseInt(agios.get(1)) < mvt){ // classe 2 : agios t-1 < mvt
-                        message.setClasse(2);
+                        message.setPre_classe(2);
                     }else if(Integer.parseInt(agios.get(1)) + Integer.parseInt(agios.get(2)) < mvt){ // classe 3 : agios t-1 + agios t-2< mvt
-                        message.setClasse(3);
+                        message.setPre_classe(3);
                     }else{ // sinon classe 4 : agios t-1 + agios t-2 + agios t-3
-                        message.setClasse(4);
+                        message.setPre_classe(4);
                     }
                     messageRepository.save(message);
                 }
@@ -479,28 +489,51 @@ public class MessageService implements IMessageService {
                 Integer totalAgios = 0;
                 String periode = getPeriode(list.get(0).getNC());
                 int nombreJoursTotal = Integer.parseInt(this.getNumberJoursTotal());// total agios
-                List<String> listPaiementPrincipal = getPaiementPrincipal(id);//liste des paiements illi aamalhom compte x
-                System.err.println("liste paiement principals : "+listPaiementPrincipal);
-                for(String montant : listPaiementPrincipal){
-                   totalAgios = totalAgios + (Integer.parseInt(getAgiosByDate(periode,this.getDateEch(montant))) + 1);
-                   System.err.println("total agios : "+totalAgios);
-                }
+                totalAgios = getTotalAgios(id,periode);
                 System.err.println(totalAgios);
                 System.err.println(nombreJoursTotal);
                 System.err.println("nombre "+(nombreJoursTotal-totalAgios));
                 if(nombreJoursTotal - totalAgios > 360){
-                    message.setClasse(4);
+                    message.setPre_classe(4);
                 }else if(nombreJoursTotal - totalAgios > 180){
-                    message.setClasse(3);
+                    message.setPre_classe(3);
                 }else if(nombreJoursTotal - totalAgios > 90){
-                    message.setClasse(2);
+                    message.setPre_classe(2);
                 }else{
-                    message.setClasse(1);
+                    message.setPre_classe(1);
                 }
-                message.setStatus("Acceptation");
-                message.setProcessStatus("Classé");
+                message.setStatus("PréValidation");
+                message.setProcessStatus("En attente");
                 messageRepository.save(message);
             }
+            return true;
+        }
+    }
+
+    @Override
+    public Integer getTotalAgios(Long id,String periode){
+        Integer totalAgios = 0;
+        List<String> listPaiementPrincipal = getPaiementPrincipal(id);//liste des paiements illi aamalhom compte x
+        System.err.println("liste paiement principals : "+listPaiementPrincipal);
+        for(String montant : listPaiementPrincipal){
+            totalAgios = totalAgios + (Integer.parseInt(getAgiosByDate(periode,this.getDateEch(montant))) + 1);
+            System.err.println("total agios : "+totalAgios);
+        }
+        return totalAgios;
+    }
+
+    @Override
+    public boolean valider(Long id){
+        Message message = this.getById(id);
+        if(message == null){
+            return false;
+        }else{
+            //message.setClasse(message.getPre_classe());
+            //message.setMotif(message.getPre_motif());
+            //message.setStatus("Acceptation");
+            //message.setProcessStatus("Classé");
+            //message.setValidation(true);
+            messageRepository.save(message);
             return true;
         }
     }

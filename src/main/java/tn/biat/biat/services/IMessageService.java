@@ -51,5 +51,10 @@ public interface IMessageService {
     String getAgiosByDate(String periode, String date);
     String getPeriode(String cpte);
     List<String> getPaiementPrincipal(Long id);
+    boolean valider(Long id);
+
+    String getMotif(String cpte);
+    JSONArray getAncImpTable(String cpte);
+    Integer getTotalAgios(Long id,String periode);
 
 }

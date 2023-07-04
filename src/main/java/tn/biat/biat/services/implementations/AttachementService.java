@@ -6,7 +6,9 @@ import org.apache.poi.ss.formula.*;
 import org.apache.poi.ss.formula.ptg.Ptg;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
+import org.apache.poi.ss.util.RegionUtil;
 import org.apache.poi.xssf.usermodel.*;
+import org.apache.poi.xssf.usermodel.extensions.XSSFCellBorder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
@@ -151,14 +153,16 @@ public class AttachementService implements IAttachementService {
         // load the resource for the directory containing the files
         Resource resource = resourceLoader.getResource(DIRECTORY);
         // get the file path from the resource
-        System.err.println(resource.toString());
+        //System.err.println(resource.toString());
         // list all the files in the directory
         File[] files = new File(DIRECTORY).listFiles();
         for (File f : files){
             String fileName = f.getName();
-            String substring = fileName.substring(fileName.lastIndexOf("-") + 1, fileName.lastIndexOf("."));
-            if(getLibelles().contains(substring)){
-                f.delete();
+            if(fileName.contains("-")){
+                String substring = fileName.substring(fileName.lastIndexOf("-") + 1, fileName.lastIndexOf("."));
+                if(getLibelles().contains(substring)){
+                    f.delete();
+                }
             }
         }
         if (files != null) {
@@ -283,7 +287,7 @@ public class AttachementService implements IAttachementService {
                     if (codes.contains(data.get(l).get(j))) {
                         finaldata.add(data.get(l));
                         List<List<String>> d = new ArrayList<>();
-                        for (int y = 1; y <= finaldata.size() - 1; y++) {
+                        for (int y = 0; y <= finaldata.size() - 1; y++) {
                             List<String> innerList = finaldata.get(y);
                             List<String> filteredList = new ArrayList<>();
 
@@ -295,7 +299,7 @@ public class AttachementService implements IAttachementService {
                             d.add(filteredList);
                         }
                         writeToExcel(d, newFileName,iduser);
-                        System.err.println(newFileName);
+                        //System.err.println(newFileName);
                         res = downloadFiles(newFileName);
                     }
                 }
@@ -306,13 +310,14 @@ public class AttachementService implements IAttachementService {
         return res;
     }
 
-    public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
-        FileInputStream templateFile = new FileInputStream(DIRECTORY + "template.xlsx");
+
+    /*public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
+        FileInputStream templateFile = new FileInputStream(DIRECTORY + "template2.xlsx");
         Workbook workbook = new XSSFWorkbook(templateFile);
         Sheet sheet = workbook.getSheetAt(0);
-
-        int rowIndex = 10; // Start writing data from the 11th row
-        int columnIndex = 3; // Start writing data from the 4th column
+        System.err.println(data);
+        int rowIndex = 3;
+        int columnIndex = 1;
 
         CellStyle style = workbook.createCellStyle();
         style.setAlignment(HorizontalAlignment.CENTER);
@@ -331,14 +336,14 @@ public class AttachementService implements IAttachementService {
                     cell2.setCellValue(cellData);
                 }
 
-                CellRangeAddress mergedRegion = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex + 2);
+                CellRangeAddress mergedRegion = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex + 1);
                 sheet.addMergedRegion(mergedRegion);
 
-                columnIndex += 3;
+                columnIndex += 2;
                 isFirstIteration = false;
             }
             rowIndex += 2; // Increment the rowIndex by 2 for the merged rows
-            columnIndex = 3; // Reset the columnIndex for the next row
+            columnIndex = 1; // Reset the columnIndex for the next row
         }
 
 
@@ -348,8 +353,100 @@ public class AttachementService implements IAttachementService {
         templateFile.close();
         outputFile.close();
         workbook.close();
-    }
+    }*/
 
+    public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
+        FileInputStream templateFile = new FileInputStream(DIRECTORY + "template2.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(templateFile);
+        XSSFSheet sheet = workbook.getSheetAt(0);
+
+        int rowIndex = 3; // Start writing data from the 4th row
+        int columnIndex = 1; // Start writing data from the 2nd column
+
+        XSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        // Define custom color "Bleu, Accentuation4, plus sombre 50%"
+        XSSFColor customColor = new XSSFColor(new java.awt.Color(20, 50, 78));
+        headerStyle.setFillForegroundColor(customColor);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        XSSFFont font = workbook.createFont();
+        font.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(font);
+
+        XSSFRow headerRow1 = sheet.createRow(rowIndex);
+        XSSFRow headerRow2 = sheet.createRow(rowIndex + 1);
+
+        for (String cellData : data.get(0)) {
+            XSSFCell cell1 = headerRow1.createCell(columnIndex, CellType.STRING);
+            XSSFCell cell2 = headerRow2.createCell(columnIndex, CellType.STRING);
+            cell1.setCellValue(cellData);
+            cell2.setCellValue(cellData);
+
+            // Merge the cells horizontally and vertically
+            CellRangeAddress mergedRegion = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex + 1);
+            sheet.addMergedRegion(mergedRegion);
+
+            cell1.setCellStyle(headerStyle);
+            cell2.setCellStyle(headerStyle);
+
+            columnIndex += 2;
+        }
+
+        rowIndex += 2; // Increment the rowIndex by 2 for the merged rows
+
+        for (int i = 1; i < data.size(); i++) {
+            List<String> rowData = data.get(i);
+            XSSFRow row1 = sheet.createRow(rowIndex);
+            XSSFRow row2 = sheet.createRow(rowIndex + 1);
+            boolean isFirstIteration = true;
+            columnIndex = 1; // Reset the columnIndex for the next row
+
+            for (String cellData : rowData) {
+                XSSFCell cell1 = row1.createCell(columnIndex, CellType.STRING);
+                XSSFCell cell2 = row2.createCell(columnIndex, CellType.STRING);
+                cell1.setCellValue(cellData);
+                if (!isFirstIteration) {
+                    cell2.setCellValue(cellData);
+                }
+
+                // Merge the cells horizontally and vertically
+                CellRangeAddress mergedRegion = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex + 1);
+                sheet.addMergedRegion(mergedRegion);
+
+                // Apply borders to the cell
+                RegionUtil.setBorderTop(BorderStyle.THIN, mergedRegion, sheet);
+                RegionUtil.setBorderBottom(BorderStyle.THIN, mergedRegion, sheet);
+                RegionUtil.setBorderLeft(BorderStyle.THIN, mergedRegion, sheet);
+                RegionUtil.setBorderRight(BorderStyle.THIN, mergedRegion, sheet);
+
+                // Apply custom color to the borders
+                XSSFColor borderColor = new XSSFColor(new java.awt.Color(20, 50, 78));
+                headerStyle.setBorderTop(BorderStyle.THIN);
+                headerStyle.setTopBorderColor(borderColor);
+                headerStyle.setBorderBottom(BorderStyle.THIN);
+                headerStyle.setBottomBorderColor(borderColor);
+                headerStyle.setBorderLeft(BorderStyle.THIN);
+                headerStyle.setLeftBorderColor(borderColor);
+                headerStyle.setBorderRight(BorderStyle.THIN);
+                headerStyle.setRightBorderColor(borderColor);
+
+                columnIndex += 2;
+                isFirstIteration = false;
+            }
+
+            rowIndex += 2; // Increment the rowIndex by 2 for the merged rows
+        }
+
+        FileOutputStream outputFile = new FileOutputStream(DIRECTORY + newFileName);
+        workbook.write(outputFile);
+
+        templateFile.close();
+        outputFile.close();
+        workbook.close();
+    }
 
 
     /*public void writeToExcel(List<List<String>> finaldata, String fileName, Long iduser) throws IOException {
@@ -458,7 +555,7 @@ public class AttachementService implements IAttachementService {
     public boolean checkCode(String pin){
         User u = userService.getLoggedInUser();
         List<DownloadPin> pins = downloadPinRepository.findCodeByUserId(u.getId());
-        System.err.println(pins.toString());
+        //System.err.println(pins.toString());
         StringBuilder genpin = new StringBuilder();
         String alphabet = "0123456789";
         if(pins.size() == 0){
@@ -468,7 +565,7 @@ public class AttachementService implements IAttachementService {
                 char c = alphabet.charAt(r.nextInt(alphabet.length()));
                 genpin.append(c);
             }
-            System.err.println(genpin);
+            //System.err.println(genpin);
             DownloadPin dp = new DownloadPin();
             dp.setCreatedAt(LocalDateTime.now());
             dp.setPin(genpin.toString());
@@ -491,7 +588,7 @@ public class AttachementService implements IAttachementService {
                     char c = alphabet.charAt(r.nextInt(alphabet.length()));
                     genpin.append(c);
                 }
-                System.err.println(genpin);
+                //System.err.println(genpin);
                 DownloadPin dp = new DownloadPin();
                 dp.setCreatedAt(LocalDateTime.now());
                 dp.setPin(genpin.toString());
@@ -505,8 +602,8 @@ public class AttachementService implements IAttachementService {
                 //15min mazelet
                 List<DownloadPin>dpd = downloadPinRepository.findCodeByUserId(u.getId());
                 DownloadPin dow = dpd.get(0);
-                System.err.println(dow.getPin());
-                System.err.println(pin);
+                //System.err.println(dow.getPin());
+                //System.err.println(pin);
                 if(dow.getIsValidated() == true){
                     return true;
                 }

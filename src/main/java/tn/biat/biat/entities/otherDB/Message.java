@@ -29,7 +29,7 @@ public class Message implements Serializable {
     private String object;
     private String type; //MESSAGE // RECLAMATION // CLASSIFICATION
     private LocalDateTime timestamp;
-    private String processStatus; // Déposée - En cours de traitement - Traitée (Réclamation) // Sent - Read - Failed (Message) // Déposée - En attente - classé (classification)
+    private String processStatus; // Déposée - En cours de traitement - Traitée (Réclamation) // Sent - Read - Failed (Message) // Déposée - En attente - classé - PréValidation (classification)
 
     //Keni reclamation
     private String codeclient;
@@ -38,6 +38,10 @@ public class Message implements Serializable {
     //keni classification
     private Integer classe;
     private String motif;
+
+    private Integer pre_classe;
+    private String pre_motif;
+    private Boolean validation;
 
     @OneToMany
     private List<Attachement> attachements;

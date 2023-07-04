@@ -24,9 +24,9 @@ public class AnalyseService {
     //public static String DIRECTORY =  Paths.get("").toAbsolutePath()+ File.separator + "target" + File.separator + "static" + File.separator + "files" + File.separator;
     public static String DIRECTORY =  "C:\\Users\\onske\\Desktop\\biat_backend\\target\\static\\files\\";
 
-    public String extractNumeroCompteFromPdf() { //makhdoum b java equivalent a python
+    public String extractNumeroCompteFromPdf() { //makhdoum b java equivalent to python
         String filePath = "C:\\Users\\onske\\Desktop\\biat_backend\\target\\static\\files\\Extrait_de_compte.pdf";
-
+        String nc = "";
         try (PDDocument document = PDDocument.load(new File(filePath))) {
             PDFTextStripper textStripper = new PDFTextStripper();
             String text = textStripper.getText(document);
@@ -36,16 +36,17 @@ public class AnalyseService {
             Matcher matcher = pattern.matcher(text);
             if (matcher.find()) {
                 String numero_compte = matcher.group(1);
-                System.out.println("Numéro de compte trouvé: " + numero_compte);
-                return numero_compte;
+                nc = numero_compte;
+                System.out.println("Numéro de compte trouvé: " + nc);
+
             } else {
                 System.out.println("Numéro de compte non trouvé.");
-                return null;
+
             }
         } catch (IOException e) {
             e.printStackTrace();
-            return null;
         }
+        return nc;
     }
 
     public String extractSoldeFinValuesFromPdf() { //makhdoum b java equivalent a python

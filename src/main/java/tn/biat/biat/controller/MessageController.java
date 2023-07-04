@@ -12,6 +12,7 @@ import tn.biat.biat.entities.otherDB.Client;
 import tn.biat.biat.entities.otherDB.Message;
 import tn.biat.biat.services.IMessageService;
 import tn.biat.biat.services.QueryDto;
+import tn.biat.biat.services.StringDto;
 
 import java.util.List;
 import java.util.Map;
@@ -45,6 +46,13 @@ public class MessageController {
     public ResponseEntity<Boolean> updateReclamationAttachements(@PathVariable("id") Long id, @PathVariable("name") String name, @PathVariable("size") String size, @PathVariable("type") String type,@PathVariable("url") String url){
         return ResponseEntity.status(HttpStatus.OK).body(
                 iMessageService.updateReclamationAttachements(id,name,size,type,url)
+        );
+    }
+
+    @GetMapping("/valider/{id}")
+    public ResponseEntity<Boolean> valider(@PathVariable("id") Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.valider(id)
         );
     }
 
@@ -286,12 +294,32 @@ public class MessageController {
         );
     }
 
+    @GetMapping("/totalAgios/{id}/{periode}")
+    public ResponseEntity<Integer> getTotalAgios(@PathVariable("id") Long id,@PathVariable("periode") String periode){
+        Integer ta = iMessageService.getTotalAgios(id,periode);
+        return ResponseEntity.status(HttpStatus.OK).body(ta);
+    }
+
     @GetMapping("/getAgiosByDate/{p}/{date}")
-    public ResponseEntity<String> getAgiosByDate(@PathVariable("p") String periode, @PathVariable("date") String date){
-        String j = iMessageService.getAgiosByDate(periode,date);
+    public ResponseEntity<StringDto> getAgiosByDate(@PathVariable("p") String periode, @PathVariable("date") String date){
+        StringDto qq = new StringDto();
+        qq.string = iMessageService.getAgiosByDate(periode.replace("-","/"),date.replace("-","/"));
         return ResponseEntity.status(HttpStatus.OK).body(
-                j
+                qq
         );
+    }
+
+    @GetMapping("/getmotif/{account}")
+    public ResponseEntity<StringDto> getMotif(@PathVariable("account") String account){
+        StringDto qq = new StringDto();
+        qq.string = iMessageService.getMotif(account);
+        return ResponseEntity.status(HttpStatus.OK).body(qq);
+    }
+
+    @GetMapping("/ancimptable/{cpte}")
+    public ResponseEntity<JSONArray> getAncImpTable(@PathVariable("cpte") String cpte){
+        JSONArray jsonArray = iMessageService.getAncImpTable(cpte);
+        return ResponseEntity.status(HttpStatus.OK).body(jsonArray);
     }
 
     @GetMapping("/cla/{id}")
