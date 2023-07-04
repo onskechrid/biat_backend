@@ -4,15 +4,17 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import tn.biat.biat.BiatApplication;
 import tn.biat.biat.entities.otherDB.Function;
 import tn.biat.biat.repository.FunctionRepository;
 import tn.biat.biat.services.IFunctionService;
 
 
 import java.sql.*;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -26,6 +28,10 @@ public class FunctionService implements IFunctionService {
 
     HistoryService historyService;
 
+    @Value("${spring.datasource.username}")
+    private String user;
+    @Value("${spring.datasource.password}")
+    private String password;
 
     @Autowired
     public FunctionService( @Lazy HistoryService historyService){
@@ -94,10 +100,67 @@ public class FunctionService implements IFunctionService {
         return functionRepository.updateFnStatus(id,update);
     }
 
+    public Map<String, List<String>> getDatabaseSchema(){
+        JSONArray json = new JSONArray();
+        Map<String, List<String>> map = new HashMap<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/biat", user,  this.password);) {
+            try (PreparedStatement st = conn.prepareStatement("SELECt table_name as d, column_name as n FROM information_schema.columns WHERE table_schema='public' order by d;\n")) {
+                ResultSet resultSet = st.executeQuery();
+                ResultSetMetaData md = resultSet.getMetaData();
+                int numCols = md.getColumnCount();
+                List<String> colNames = IntStream.range(0, numCols)
+                        .mapToObj(i -> {
+                            try {
+                                return md.getColumnName(i + 1);
+                            } catch (SQLException e) {
+                                e.printStackTrace();
+                                return "?";
+                            }
+                        })
+                        .collect(Collectors.toList());
+
+                JSONArray result = new JSONArray();
+                while (resultSet.next()) {
+                    JSONObject row = new JSONObject();
+                    colNames.forEach(cn -> {
+                        try {
+                            Object c = resultSet.getObject(cn);
+                            row.put(cn, c);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    result.add(row);
+                }
+                System.out.println(result);
+                json.add(result);
+
+                for (int i = 0; i < result.size(); i++) {
+                    JSONObject jsonobject = (JSONObject) result.get(i);
+                    String tab = (String) jsonobject.get("d");
+                    String col = (String) jsonobject.get("n");
+                    List<String> ll = map.get(tab);
+                    if(ll != null) {
+                        ll.add(col);
+                        map.put(tab, ll);
+                    }else{
+                        map.put(tab, new ArrayList<>());
+                        List<String> f = map.get(tab);
+                        f.add(col);
+                    }
+                }
+                return map;
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     @Override
     public JSONArray queryinput(String QUERY) {
         JSONArray json = new JSONArray();
-        try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/biat", "postgres", "0000");) {
+        try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/biat", user,  this.password);) {
             try (PreparedStatement st = conn.prepareStatement(QUERY)) {
                 ResultSet resultSet = st.executeQuery();
 
@@ -139,4 +202,25 @@ public class FunctionService implements IFunctionService {
         }
         return json;
     }
+
+    @Override
+    public List<String> getTableAndColumnNames(String word) {
+        System.out.println("enetering getTablesAndColumnNames");
+        System.err.println(BiatApplication.dbSchemeMap);
+        List<String> result = new ArrayList<>();
+
+        for(Map.Entry<String, List<String>> entry : BiatApplication.dbSchemeMap.entrySet()){
+            if(entry.getKey().toLowerCase().startsWith(word.toLowerCase())){
+                result.add(entry.getKey());
+            }
+            for(int i=0; i<=entry.getValue().size()-1; i++){
+                if(entry.getValue().get(i).toLowerCase().startsWith(word.toLowerCase())){
+                    result.add(entry.getValue().get(i));
+                }
+            }
+        }
+        return result;
+    }
+
+
 }
