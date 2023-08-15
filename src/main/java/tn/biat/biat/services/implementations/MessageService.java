@@ -26,6 +26,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.text.NumberFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -217,6 +218,18 @@ public class MessageService implements IMessageService {
         return null;
 
     }
+    public static String extractLibelleOperation2(String inputString) {
+        String date = extractDateValeur(inputString);
+        String substringAfterDate = inputString.substring(inputString.indexOf(date) + date.length());
+        String delimiter = " FT";
+        int delimiterIndex = substringAfterDate.indexOf(delimiter);
+
+        if (delimiterIndex != -1) {
+            return substringAfterDate.substring(0, delimiterIndex).trim();
+        }
+        return null;
+
+    }
 
     public static String extractMontant(String inputString) {
         String delimiter = " ";
@@ -258,8 +271,21 @@ public class MessageService implements IMessageService {
         }
         return null; // Return null if the start substring or the substring are not found
     }
+    public static String extractRef2(String inputString) {
+        String startSubstring = "FT";
+        String endDelimiter = " ";
+        int startIndex = inputString.indexOf(startSubstring);
+        int endIndex = inputString.indexOf(endDelimiter, startIndex + startSubstring.length());
+
+        if (startIndex != -1 && endIndex != -1) {
+            String substring = inputString.substring(startIndex, endIndex);
+            return substring.replaceAll("\\\\", ";");
+        }
+        return null; // Return null if the start substring or the substring are not found
+    }
     @Override
     public boolean updateReclamationAttachements(Long id, String name, String size, String type,String url){
+        System.err.println(type);
         Message m = this.getById(id);
         if(m==null){
             return false;
@@ -301,20 +327,21 @@ public class MessageService implements IMessageService {
                         }
                     }
                 }
-            }else if ((m.getType().equals("CLASSIFICATION") && type.equals("jpg")) || m.getType().equals("CLASSIFICATION") && type.equals("png")) {
+            }else if ((m.getType().equals("CLASSIFICATION") && type.contains("jpg")) || m.getType().equals("CLASSIFICATION") && type.contains("png") || m.getType().equals("CLASSIFICATION") && type.contains("jpeg")) {
                 for(String line : analyseService.extractLinesWithReferenceFromImg()) {
                     AttachementReclamation attR = new AttachementReclamation();
-                    if (extractLibelleOperation(line) != null){
+                    System.err.println(line);
+                    if (extractLibelleOperation2(line) != null){
                         attR.setName(name);
                         attR.setType(type);
                         attR.setSize(size);
                         attR.setPath(url);
-                        attR.setNC(analyseService.extractNumeroCompteFromPdf());
-                        attR.setSF(analyseService.extractSoldeFinValuesFromPdf());
+                        attR.setNC(analyseService.extractNumeroCompteFromImg());
+                        attR.setSF(analyseService.extractSoldeFinValuesFromImg());
 
                         attR.setDateValeur(extractDateValeur(line));
-                        attR.setLibelleOperation(extractLibelleOperation(line));
-                        attR.setRef(extractRef(line));
+                        attR.setLibelleOperation(extractLibelleOperation2(line));
+                        attR.setRef(extractRef2(line));
                         attR.setDateOperation(extractDateOperation(line));
                         attR.setMontant(extractMontant(line));
 
@@ -460,19 +487,10 @@ public class MessageService implements IMessageService {
                 if (Integer.parseInt(sf) >= 0){
                     message.setPre_classe(0);
                 }else{
-                    String query = "SELECT agios FROM risk_classe where cpte = '"+cpte+"' ORDER BY to_date(periode, 'MM/DD/YYYY') desc";
-                    JSONArray j = iFunctionService.queryinput(query);
-                    String s = j.toString().replace("{\"agios\":\"","");
-                    s = s.replace("\"},{\"agios\":\"",",");
-                    s = s.replace("\"}]","]");
-                    String trimmedString = s.substring(1, s.length() - 1);
-                    String[] stringArray = trimmedString.split(",");
-                    List<String> agios = Arrays.asList(stringArray);
-                    String query2 = "select sum(abs(soldcpte ::integer)) as sum from risk_classe rc where cpte = '"+cpte+"'";
-                    JSONArray j2 = iFunctionService.queryinput(query2);
-                    String solde = j2.toString().replace("{\"sum\":\"","");
-                    solde = solde.replace("\"}]","");
-                    Integer mvt = Integer.parseInt(solde) - Integer.parseInt(sf);
+                    List<String> agios = getListAgiosG(cpte);
+                    String solde = "";
+                    solde = getSolde(cpte);
+                    Double mvt = getMvt(solde,sf);
                     if(Integer.parseInt(agios.get(0)) < mvt ){ // classe 1 : agios < mvt
                         message.setPre_classe(1);
                     }else if(Integer.parseInt(agios.get(1)) < mvt){ // classe 2 : agios t-1 < mvt
@@ -511,28 +529,79 @@ public class MessageService implements IMessageService {
     }
 
     @Override
+    public List<String> getListAgiosG(String cpte){
+        String query = "SELECT agios FROM risk_classe where cpte = '"+cpte+"' ORDER BY to_date(periode, 'MM/DD/YYYY') desc";
+        JSONArray j = iFunctionService.queryinput(query);
+        String s = j.toString().replace("{\"agios\":\"","");
+        s = s.replace("\"},{\"agios\":\"",",");
+        s = s.replace("\"}]","]");
+        String trimmedString = s.substring(1, s.length() - 1);
+        String[] stringArray = trimmedString.split(",");
+        List<String> agios = Arrays.asList(stringArray);
+        return agios;
+    }
+
+    @Override
+    public Double getMvt(String solde, String sf){
+        NumberFormat numberFormat = NumberFormat.getNumberInstance(Locale.getDefault());
+        try {
+            // Parse solde and sf strings as numbers
+            Number soldeNumber = numberFormat.parse(solde);
+            Number sfNumber = numberFormat.parse(sf);
+
+            // Calculate the mvt
+            double mvt = soldeNumber.doubleValue() - sfNumber.doubleValue();
+
+            return mvt;
+        } catch (ParseException e) {
+            e.printStackTrace();
+            // Handle parsing error
+        }
+        return null;
+    }
+
+    @Override
+    public String getSolde(String cpte){
+        String query2 = "select sum(abs(soldcpte ::integer)) as sum from risk_classe rc where cpte = '"+cpte+"'";
+        JSONArray j2 = iFunctionService.queryinput(query2);
+        int startIndex = j2.toString().indexOf(":") + 1;
+        int endIndex = j2.toString().indexOf("}");
+
+        String numberSubstring = j2.toString().substring(startIndex, endIndex);
+        System.err.println(numberSubstring);
+        return numberSubstring;
+    }
+
+    @Override
     public Integer getTotalAgios(Long id,String periode){
         Integer totalAgios = 0;
         List<String> listPaiementPrincipal = getPaiementPrincipal(id);//liste des paiements illi aamalhom compte x
         System.err.println("liste paiement principals : "+listPaiementPrincipal);
         for(String montant : listPaiementPrincipal){
-            totalAgios = totalAgios + (Integer.parseInt(getAgiosByDate(periode,this.getDateEch(montant))) + 1);
+
+            totalAgios = totalAgios + (Integer.parseInt(getAgiosByDate(periode,this.getDateEch(montant))));
             System.err.println("total agios : "+totalAgios);
         }
         return totalAgios;
     }
 
     @Override
+    public JSONArray getGelTable(String cpte){
+        String query = "select cpte, agios, periode,soldcpte from risk_classe rc where cpte = '"+cpte+"' order by TO_DATE(periode, 'MM/DD/YYYY') desc ";
+        JSONArray j = iFunctionService.queryinput(query);
+        return j;
+    }
+    @Override
     public boolean valider(Long id){
         Message message = this.getById(id);
         if(message == null){
             return false;
         }else{
-            //message.setClasse(message.getPre_classe());
-            //message.setMotif(message.getPre_motif());
-            //message.setStatus("Acceptation");
-            //message.setProcessStatus("Classé");
-            //message.setValidation(true);
+            message.setClasse(message.getPre_classe());
+            message.setMotif(message.getPre_motif());
+            message.setStatus("Acceptation");
+            message.setProcessStatus("Classé");
+            message.setValidation(true);
             messageRepository.save(message);
             return true;
         }

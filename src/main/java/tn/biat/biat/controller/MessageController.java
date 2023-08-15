@@ -296,8 +296,32 @@ public class MessageController {
 
     @GetMapping("/totalAgios/{id}/{periode}")
     public ResponseEntity<Integer> getTotalAgios(@PathVariable("id") Long id,@PathVariable("periode") String periode){
-        Integer ta = iMessageService.getTotalAgios(id,periode);
+        Integer ta = iMessageService.getTotalAgios(id,periode.replace("-","/"));
         return ResponseEntity.status(HttpStatus.OK).body(ta);
+    }
+
+    @GetMapping("/getSolde/{cpte}")
+    public ResponseEntity<String> getSolde(@PathVariable("cpte") String cpte){
+        String s = iMessageService.getSolde(cpte);
+        return ResponseEntity.status(HttpStatus.OK).body(s);
+    }
+
+    @GetMapping("/getMvt/{solde}/{sf}")
+    public ResponseEntity<Double> getMvt(@PathVariable("solde") String solde, @PathVariable("sf") String sf){
+        Double s = iMessageService.getMvt(solde,sf);
+        return ResponseEntity.status(HttpStatus.OK).body(s);
+    }
+
+    @GetMapping("/getGelTable/{cpte}")
+    public ResponseEntity<JSONArray> getGelTable(@PathVariable("cpte") String cpte){
+        JSONArray j = iMessageService.getGelTable(cpte);
+        return ResponseEntity.status(HttpStatus.OK).body(j);
+    }
+
+    @GetMapping("/getListAgiosG/{cpte}")
+    public ResponseEntity<List<String>> getListAgiosG(@PathVariable("cpte") String cpte){
+        List<String> j = iMessageService.getListAgiosG(cpte);
+        return ResponseEntity.status(HttpStatus.OK).body(j);
     }
 
     @GetMapping("/getAgiosByDate/{p}/{date}")

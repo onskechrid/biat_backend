@@ -5,6 +5,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,20 +20,21 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 
-
+@EnableScheduling
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class })
 @CrossOrigin(origins = "*")
 public class BiatApplication{
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(BiatApplication.class, args);
 	}
 
-	public static Map<String, List<String>> dbSchemeMap;
+	public static Map<String, List<String>> dbSchemeMap; //map ta3 esm table w les colonnes ili fih
 	@Autowired
 	private IFunctionService functionService;
 
-	@PostConstruct
+	@PostConstruct //hedhy yexecuty el code awal ma truni el application
 	public void init() {
 		dbSchemeMap = functionService.getDatabaseSchema();
 		System.err.println(dbSchemeMap.toString());

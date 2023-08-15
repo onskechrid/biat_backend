@@ -56,5 +56,9 @@ public interface IMessageService {
     String getMotif(String cpte);
     JSONArray getAncImpTable(String cpte);
     Integer getTotalAgios(Long id,String periode);
+    String getSolde(String cpte);
+    Double getMvt(String solde, String sf);
+    JSONArray getGelTable(String cpte);
+    List<String> getListAgiosG(String cpte);
 
 }

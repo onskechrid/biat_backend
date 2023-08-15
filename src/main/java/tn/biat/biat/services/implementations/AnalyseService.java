@@ -248,6 +248,7 @@ public class AnalyseService {
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
         }
+       System.out.println(outputLines);
        return outputLines;
     }
 

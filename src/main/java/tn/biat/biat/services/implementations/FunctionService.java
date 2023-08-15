@@ -6,6 +6,10 @@ import net.minidev.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tn.biat.biat.BiatApplication;
 import tn.biat.biat.entities.otherDB.Function;
@@ -25,7 +29,8 @@ public class FunctionService implements IFunctionService {
     @Autowired
     FunctionRepository functionRepository;
 
-
+    @Autowired
+    JavaMailSender javaMailSender;
     HistoryService historyService;
 
     @Value("${spring.datasource.username}")
@@ -104,7 +109,7 @@ public class FunctionService implements IFunctionService {
         JSONArray json = new JSONArray();
         Map<String, List<String>> map = new HashMap<>();
         try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/biat", user,  this.password);) {
-            try (PreparedStatement st = conn.prepareStatement("SELECt table_name as d, column_name as n FROM information_schema.columns WHERE table_schema='public' order by d;\n")) {
+            try (PreparedStatement st = conn.prepareStatement("SELECt table_name as d, column_name as n FROM information_schema.columns WHERE table_schema='public' order by d;\n")) { // d hiya table name
                 ResultSet resultSet = st.executeQuery();
                 ResultSetMetaData md = resultSet.getMetaData();
                 int numCols = md.getColumnCount();
@@ -156,6 +161,34 @@ public class FunctionService implements IFunctionService {
             e.printStackTrace();
         }
         return null;
+    }
+    //@Scheduled(cron = "* * */1 * * *")
+    public void cronCheckFunctions(){
+
+        System.err.println("Starting cron job");
+        List<Function> fns = functionRepository.findAll();
+        List<String> fn_names = new ArrayList<>();
+        for(Function f : fns){
+            JSONArray js = queryinput(f.getQuery());
+            if(!js.isEmpty()){
+                fn_names.add(f.getName());
+            }
+        }
+        //sendmail
+        if(!fn_names.isEmpty()){
+            this.sendEmail("RR@gmail.com", "Une incohérence des données a été détectée", "Des incohérences des données ont été détectées par les fonction : "+fn_names.toString());
+        }else{
+            //mayabaaathech
+        }
+    }
+    @Async
+    public void sendEmail(String to, String sub, String msg){
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(to);
+        mailMessage.setSubject(sub);
+        mailMessage.setText(msg);
+        mailMessage.setFrom("ons.kechrid@esprit.tn");
+        javaMailSender.send(mailMessage);
     }
     @Override
     public JSONArray queryinput(String QUERY) {
