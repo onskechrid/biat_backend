@@ -56,6 +56,20 @@ public class MessageController {
         );
     }
 
+    @GetMapping("/refuser/{id}")
+    public ResponseEntity<Boolean> refuser(@PathVariable("id") Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.refuser(id)
+        );
+    }
+
+    @GetMapping("/ci/{id}")
+    public ResponseEntity<Boolean> ci(@PathVariable("id") Long id){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.ci(id)
+        );
+    }
+
     @GetMapping("/getById/{id}")
     public ResponseEntity<Message> getById(@PathVariable("id") Long id){
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -208,17 +222,66 @@ public class MessageController {
 
 
 
-    @GetMapping("/getClassifiedClientsNumber")
-    public ResponseEntity<Integer> getClassifiedClientsNumber(){
+    @GetMapping("/getClassifiedClientsNumberRR/{libelle}")
+    public ResponseEntity<Integer> getClassifiedClientsNumberRR(@PathVariable("libelle") String libelle){
         return ResponseEntity.status(HttpStatus.OK).body(
-                iMessageService.getClassifiedClientsNumber()
+                iMessageService.getClassifiedClientsNumberRR(libelle)
+        );
+    }
+    @GetMapping("/getClassifiedClientsNumberAgence/{libelle}")
+    public ResponseEntity<Integer> getClassifiedClientsNumberAgence(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassifiedClientsNumberAgence(libelle)
+        );
+    }
+    @GetMapping("/getClassifiedClientsNumberZone/{libelle}")
+    public ResponseEntity<Integer> getClassifiedClientsNumberZone(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassifiedClientsNumberZone(libelle)
+        );
+    }
+    @GetMapping("/getClassifiedClientsNumberPole/{libelle}")
+    public ResponseEntity<Integer> getClassifiedClientsNumberPole(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassifiedClientsNumberPole(libelle)
+        );
+    }
+    @GetMapping("/getClassifiedClientsNumberRegion/{libelle}")
+    public ResponseEntity<Integer> getClassifiedClientsNumberRegion(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getClassifiedClientsNumberRegion(libelle)
         );
     }
 
-    @GetMapping("/getEnattenteClientsNumber")
-    public ResponseEntity<Integer> getEnattenteClientsNumber(){
+
+    @GetMapping("/getEnattenteClientsNumberRR")
+    public ResponseEntity<Integer> getEnattenteClientsNumberRR(){
         return ResponseEntity.status(HttpStatus.OK).body(
-                iMessageService.getEnattenteClientsNumber()
+                iMessageService.getEnattenteClientsNumberRR()
+        );
+    }
+    @GetMapping("/getEnattenteClientsNumberR/{libelle}")
+    public ResponseEntity<Integer> getEnattenteClientsNumberR(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getEnattenteClientsNumberR(libelle)
+        );
+    }
+    @GetMapping("/getEnattenteClientsNumberZ/{libelle}")
+    public ResponseEntity<Integer> getEnattenteClientsNumberZ(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getEnattenteClientsNumberZ(libelle)
+        );
+    }
+    @GetMapping("/getEnattenteClientsNumberP/{libelle}")
+    public ResponseEntity<Integer> getEnattenteClientsNumberP(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getEnattenteClientsNumberP(libelle)
+        );
+    }
+    @GetMapping("/getEnattenteClientsNumberA/{libelle}")
+    public ResponseEntity<Integer> getEnattenteClientsNumberA(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getEnattenteClientsNumberA(libelle)
         );
     }
 
@@ -229,11 +292,68 @@ public class MessageController {
         );
     }
 
-
-    @GetMapping("/getRefuseeClientsNumber")
-    public ResponseEntity<Integer> getRefuseeClientsNumber(){
+    @GetMapping("/getPreValidationCLientsNumberRR")
+    public ResponseEntity<Integer> getPreValidationCLientsNumberRR(){
         return ResponseEntity.status(HttpStatus.OK).body(
-                iMessageService.getRefuseeClientsNumber()
+                iMessageService.getPreValidationCLientsNumberRR()
+        );
+    }
+    @GetMapping("/getPreValidationCLientsNumberA/{libelle}")
+    public ResponseEntity<Integer> getPreValidationCLientsNumberA(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getPreValidationCLientsNumberA(libelle)
+        );
+    }
+    @GetMapping("/getPreValidationCLientsNumberR/{libelle}")
+    public ResponseEntity<Integer> getPreValidationCLientsNumberR(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getPreValidationCLientsNumberR(libelle)
+        );
+    }
+    @GetMapping("/getPreValidationCLientsNumberZ/{libelle}")
+    public ResponseEntity<Integer> getPreValidationCLientsNumberZ(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getPreValidationCLientsNumberZ(libelle)
+        );
+    }
+    @GetMapping("/getPreValidationCLientsNumberP/{libelle}")
+    public ResponseEntity<Integer> getPreValidationCLientsNumberP(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getPreValidationCLientsNumberP(libelle)
+        );
+    }
+
+
+
+
+    @GetMapping("/getRefuseeClientsNumberRR")
+    public ResponseEntity<Integer> getRefuseeClientsNumberRR(){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getRefuseeClientsNumberRR()
+        );
+    }
+    @GetMapping("/getRefuseeClientsNumberZ/{libelle}")
+    public ResponseEntity<Integer> getRefuseeClientsNumberZ(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getRefuseeClientsNumberZ(libelle)
+        );
+    }
+    @GetMapping("/getRefuseeClientsNumberP/{pp}/{libelle}")
+    public ResponseEntity<Integer> getRefuseeClientsNumberP(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getRefuseeClientsNumberP(libelle)
+        );
+    }
+    @GetMapping("/getRefuseeClientsNumberR/{libelle}")
+    public ResponseEntity<Integer> getRefuseeClientsNumberR(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getRefuseeClientsNumberR(libelle)
+        );
+    }
+    @GetMapping("/getRefuseeClientsNumberA/{libelle}")
+    public ResponseEntity<Integer> getRefuseeClientsNumberA(@PathVariable("libelle") String libelle){
+        return ResponseEntity.status(HttpStatus.OK).body(
+                iMessageService.getRefuseeClientsNumberA(libelle)
         );
     }
 

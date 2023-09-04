@@ -35,10 +35,29 @@ public interface IMessageService {
     Map<String, String> getClassificationByIds3(List<String> list);
     Map<String, String> getClassificationByIds2(List<String> list);
     Map<String, Integer> getClassificationByIds(List<String> list);
-    Integer getClassifiedClientsNumber();
-    Integer getEnattenteClientsNumber();
-    Integer getRefuseeClientsNumber();
+    Integer getClassifiedClientsNumberAgence(String libelle);
+    Integer getClassifiedClientsNumberRR(String libelle);
+    Integer getClassifiedClientsNumberZone(String libelle);
+    Integer getClassifiedClientsNumberPole(String libelle);
+    Integer getClassifiedClientsNumberRegion(String libelle);
+
+    Integer getEnattenteClientsNumberRR();
+    Integer getEnattenteClientsNumberR(String libelle);
+    Integer getEnattenteClientsNumberA(String libelle);
+    Integer getEnattenteClientsNumberZ(String libelle);
+    Integer getEnattenteClientsNumberP(String libelle);
+
+    Integer getRefuseeClientsNumberRR();
+    Integer getRefuseeClientsNumberA(String libelle);
+    Integer getRefuseeClientsNumberP(String libelle);
+    Integer getRefuseeClientsNumberZ(String libelle);
+    Integer getRefuseeClientsNumberR(String libelle);
     Integer getDeposeClientsNumber();
+    Integer getPreValidationCLientsNumberRR();
+    Integer getPreValidationCLientsNumberR(String libelle);
+    Integer getPreValidationCLientsNumberA(String libelle);
+    Integer getPreValidationCLientsNumberP(String libelle);
+    Integer getPreValidationCLientsNumberZ(String libelle);
     Message getMessageBYCompteClient(String account);
     Client getClientByAccount(String account);
 
@@ -52,6 +71,8 @@ public interface IMessageService {
     String getPeriode(String cpte);
     List<String> getPaiementPrincipal(Long id);
     boolean valider(Long id);
+    boolean refuser(Long id);
+    boolean ci(Long id);
 
     String getMotif(String cpte);
     JSONArray getAncImpTable(String cpte);

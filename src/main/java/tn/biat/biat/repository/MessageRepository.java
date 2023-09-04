@@ -52,17 +52,57 @@ public interface MessageRepository extends JpaRepository<Message, Long> {
     @Query(value = "select * from \"Message\" m where compteclient = :account and type = 'CLASSIFICATION'" , nativeQuery = true)
     public Message getMessageBYCompteClient(@Param("account") String account);
 
+    //////////////////////////////////////////////////////////////////////////////////////////////
     @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation'", nativeQuery = true)
-    public Integer getClassifiedClientsNumber();
+    public Integer getClassifiedClientsNumberRR(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation' and compteclient in (select account from \"Client\" c where code = :libelle)", nativeQuery = true)
+    public Integer getClassifiedClientsNumberAgence(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"pole\" = :libelle))", nativeQuery = true)
+    public Integer getClassifiedClientsNumberPole(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"region\" = :libelle))", nativeQuery = true)
+    public Integer getClassifiedClientsNumberRegion(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Acceptation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"zone\" = :libelle))", nativeQuery = true)
+    public Integer getClassifiedClientsNumberZone(@Param("libelle") String libelle);
+    ///////////////////////////////////////////////////////////////////////////////////////////////
 
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'CI' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"agence\" = :libelle ))", nativeQuery = true)
+    public Integer getEnattenteClientsNumberA(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'CI' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"region\" = :libelle ))", nativeQuery = true)
+    public Integer getEnattenteClientsNumberR(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'CI' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"pole\" = :libelle ))", nativeQuery = true)
+    public Integer getEnattenteClientsNumberP(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'CI' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"zone\" = :libelle ))", nativeQuery = true)
+    public Integer getEnattenteClientsNumberZ(@Param("libelle") String libelle);
     @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'CI'", nativeQuery = true)
-    public Integer getEnattenteClientsNumber();
+    public Integer getEnattenteClientsNumberRR();
 
+    ///////////////////////////////////////////////////////////////////////////////////////////////////
     @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and processstatus = 'Déposé'", nativeQuery = true)
     public Integer getDeposeClientsNumber();
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'PréValidation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"agence\" = :libelle ))", nativeQuery = true)
+    public Integer getPreValidationCLientsNumberA(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'PréValidation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"region\" = :libelle ))", nativeQuery = true)
+    public Integer getPreValidationCLientsNumberR(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'PréValidation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"zone\" = :libelle ))", nativeQuery = true)
+    public Integer getPreValidationCLientsNumberZ(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'PréValidation' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"pole\" = :libelle ))", nativeQuery = true)
+    public Integer getPreValidationCLientsNumberP(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'PréValidation'", nativeQuery = true)
+    public Integer getPreValidationCLientsNumberRR();
 
+
+    ///////////////////////////////////////////////////////////////////////////
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Refus' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"region\" = :libelle))", nativeQuery = true)
+    public Integer getRefuseeClientsNumberR(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Refus' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"zone\" = :libelle))", nativeQuery = true)
+    public Integer getRefuseeClientsNumberZ(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Refus' and compteclient in (select account from \"Client\" c where code IN (select agence from \"Tree\" t where \"pole\" = :libelle))", nativeQuery = true)
+    public Integer getRefuseeClientsNumberP(@Param("libelle") String libelle);
+    @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Refus' and compteclient in (select account from \"Client\" c where code = :libelle)", nativeQuery = true)
+    public Integer getRefuseeClientsNumberA(@Param("libelle") String libelle);
     @Query(value = "select count(*) from \"Message\" m where \"type\" = 'CLASSIFICATION' and status = 'Refus'", nativeQuery = true)
-    public Integer getRefuseeClientsNumber();
+    public Integer getRefuseeClientsNumberRR();
+    ////////////////////////////////////////////////////////////////////////////////////////////
 
     @Query(value = "SELECT * FROM \"Message\" WHERE compteclient = :account", nativeQuery = true)
     public Client getClientByAccount(@Param("account") String account);

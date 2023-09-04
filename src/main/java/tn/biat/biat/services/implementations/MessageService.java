@@ -116,7 +116,7 @@ public class MessageService implements IMessageService {
         if(message.getType().equals("MESSAGE")){
             message.setProcessStatus("Sent");
         }else if(message.getType().equals("CLASSIFICATION") || message.getType().equals("ReCLASSIFICATION")){
-            message.setProcessStatus("Déposé");
+            message.setProcessStatus("PréDéposé");
         }else {
             message.setProcessStatus("Déposée");
         }
@@ -476,7 +476,9 @@ public class MessageService implements IMessageService {
         Message message = getById(id);
         if(message == null){
             return false;
-        }else{
+        }else if(message.getType().equals("RECLAMATION")){
+            return false;
+        } else{
             List<AttachementReclamation> list = message.getAttachementReclamations();
             String cpte = list.get(0).getNC();
             String motif = this.getMotif(list.get(0).getNC());
@@ -603,6 +605,41 @@ public class MessageService implements IMessageService {
             message.setProcessStatus("Classé");
             message.setValidation(true);
             messageRepository.save(message);
+            this.sendEmail("RR@gmail.com", "La classification est validée", "Le traitement automatique de la classification que vous avez déposée est validée vous pouvez la consulter sur la plateforme !");
+            return true;
+        }
+    }
+
+    @Override
+    public boolean refuser(Long id){
+        Message message = this.getById(id);
+        if(message == null){
+            return false;
+        }else{
+            message.setClasse(null);
+            message.setMotif(null);
+            message.setStatus("Refus");
+            message.setProcessStatus("Refus");
+            message.setValidation(true);
+            messageRepository.save(message);
+            this.sendEmail("RR@gmail.com", "La classification est validée", "Le traitement automatique de la classification que vous avez déposée est refusée vous pouvez la consulter sur la plateforme !");
+            return true;
+        }
+    }
+
+    @Override
+    public boolean ci(Long id){
+        Message message = this.getById(id);
+        if(message == null){
+            return false;
+        }else{
+            message.setClasse(null);
+            message.setMotif(null);
+            message.setStatus("CI");
+            message.setProcessStatus("En attente");
+            message.setValidation(true);
+            messageRepository.save(message);
+            this.sendEmail("RR@gmail.com", "La classification est validée", "Le traitement automatique de la classification que vous avez déposée est mis en attente par le responsable. Il faut ajouter les informations manquantes pour pouvoir classer le client !");
             return true;
         }
     }
@@ -753,26 +790,112 @@ public class MessageService implements IMessageService {
     }
 
     @Override
-    public Integer getClassifiedClientsNumber(){
-        Integer n = messageRepository.getClassifiedClientsNumber();
+    public Integer getClassifiedClientsNumberRR(String libelle){
+        Integer n = messageRepository.getClassifiedClientsNumberRR(libelle);
+        return n;
+    }
+    @Override
+    public Integer getClassifiedClientsNumberAgence(String libelle){
+        Integer n = messageRepository.getClassifiedClientsNumberAgence(libelle);
+        return n;
+    }
+    @Override
+    public Integer getClassifiedClientsNumberPole(String libelle){
+        Integer n = messageRepository.getClassifiedClientsNumberPole(libelle);
+        return n;
+    }
+    @Override
+    public Integer getClassifiedClientsNumberRegion(String libelle){
+        Integer n = messageRepository.getClassifiedClientsNumberRegion(libelle);
+        return n;
+    }
+    @Override
+    public Integer getClassifiedClientsNumberZone(String libelle){
+        Integer n = messageRepository.getClassifiedClientsNumberZone(libelle);
+        return n;
+    }
+
+
+    @Override
+    public Integer getEnattenteClientsNumberRR(){
+        Integer n = messageRepository.getEnattenteClientsNumberRR();
+        return n;
+    }
+    @Override
+    public Integer getEnattenteClientsNumberZ(String libelle){
+        Integer n = messageRepository.getEnattenteClientsNumberZ(libelle);
+        return n;
+    }
+    @Override
+    public Integer getEnattenteClientsNumberR(String libelle){
+        Integer n = messageRepository.getEnattenteClientsNumberR(libelle);
+        return n;
+    }
+    @Override
+    public Integer getEnattenteClientsNumberA(String libelle){
+        Integer n = messageRepository.getEnattenteClientsNumberA(libelle);
+        return n;
+    }
+    @Override
+    public Integer getEnattenteClientsNumberP(String libelle){
+        Integer n = messageRepository.getEnattenteClientsNumberP(libelle);
         return n;
     }
 
     @Override
-    public Integer getEnattenteClientsNumber(){
-        Integer n = messageRepository.getEnattenteClientsNumber();
+    public Integer getRefuseeClientsNumberRR(){
+        Integer n = messageRepository.getRefuseeClientsNumberRR();
         return n;
     }
-
     @Override
-    public Integer getRefuseeClientsNumber(){
-        Integer n = messageRepository.getRefuseeClientsNumber();
+    public Integer getRefuseeClientsNumberA(String libelle){
+        Integer n = messageRepository.getRefuseeClientsNumberA(libelle);
         return n;
     }
-
+    @Override
+    public Integer getRefuseeClientsNumberR(String libelle){
+        Integer n = messageRepository.getRefuseeClientsNumberR(libelle);
+        return n;
+    }
+    @Override
+    public Integer getRefuseeClientsNumberP(String libelle){
+        Integer n = messageRepository.getRefuseeClientsNumberP(libelle);
+        return n;
+    }
+    @Override
+    public Integer getRefuseeClientsNumberZ(String libelle){
+        Integer n = messageRepository.getRefuseeClientsNumberZ(libelle);
+        return n;
+    }
     @Override
     public Integer getDeposeClientsNumber(){
         Integer n = messageRepository.getDeposeClientsNumber();
+        return n;
+    }
+
+    @Override
+    public Integer getPreValidationCLientsNumberRR(){
+        Integer n = messageRepository.getPreValidationCLientsNumberRR();
+        return n;
+    }
+    @Override
+    public Integer getPreValidationCLientsNumberR(String libelle){
+        Integer n = messageRepository.getPreValidationCLientsNumberR(libelle);
+        return n;
+    }
+    @Override
+    public Integer getPreValidationCLientsNumberA(String libelle){
+        Integer n = messageRepository.getPreValidationCLientsNumberA(libelle);
+        return n;
+    }
+    @Override
+    public Integer getPreValidationCLientsNumberZ(String libelle){
+        Integer n = messageRepository.getPreValidationCLientsNumberZ(libelle);
+        return n;
+    }
+    @Override
+    public Integer getPreValidationCLientsNumberP(String libelle){
+        Integer n = messageRepository.getPreValidationCLientsNumberP(libelle);
         return n;
     }
 
