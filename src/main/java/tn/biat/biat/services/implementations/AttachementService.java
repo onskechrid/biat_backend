@@ -355,7 +355,7 @@ public class AttachementService implements IAttachementService {
         workbook.close();
     }*/
 
-    public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
+    /*public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
         FileInputStream templateFile = new FileInputStream(DIRECTORY + "template2.xlsx");
         XSSFWorkbook workbook = new XSSFWorkbook(templateFile);
         XSSFSheet sheet = workbook.getSheetAt(0);
@@ -380,6 +380,7 @@ public class AttachementService implements IAttachementService {
         XSSFRow headerRow2 = sheet.createRow(rowIndex + 1);
 
         for (String cellData : data.get(0)) {
+            System.out.println("celldata : "+cellData);
             XSSFCell cell1 = headerRow1.createCell(columnIndex, CellType.STRING);
             XSSFCell cell2 = headerRow2.createCell(columnIndex, CellType.STRING);
             cell1.setCellValue(cellData);
@@ -446,94 +447,178 @@ public class AttachementService implements IAttachementService {
         templateFile.close();
         outputFile.close();
         workbook.close();
-    }
+    }*/
 
 
-    /*public void writeToExcel(List<List<String>> finaldata, String fileName, Long iduser) throws IOException {
-        // create a new workbook and sheet
-        XSSFWorkbook workbook = new XSSFWorkbook();
-        XSSFSheet sheet = workbook.createSheet("Liste des clients à noter");
-        User u = userService.getUserById(iduser);
+    public void writeToExcel(List<List<String>> data, String newFileName, Long iduser) throws IOException {
+        FileInputStream templateFile = new FileInputStream(DIRECTORY + "template2.xlsx");
+        XSSFWorkbook workbook = new XSSFWorkbook(templateFile);
+        XSSFSheet sheet = workbook.getSheetAt(0);
 
-        // Center the table horizontally and vertically
-        sheet.setHorizontallyCenter(true);
-        sheet.setVerticallyCenter(true);
-
-        // Set the column widths
-        sheet.setColumnWidth(2, 10000);
-        sheet.setColumnWidth(3, 10000);
-        sheet.setColumnWidth(4, 10000);
-        sheet.setColumnWidth(5, 10000);
-
-        // Create the cell style
-        CellStyle cellStyle = workbook.createCellStyle();
-        Font font = workbook.createFont();
-        font.setBold(true);
-        font.setColor(IndexedColors.WHITE.getIndex());
-        cellStyle.setFont(font);
-        cellStyle.setFillForegroundColor(IndexedColors.RED.getIndex());
-        cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        cellStyle.setAlignment(HorizontalAlignment.CENTER);
-
-        // Add the logo to the sheet
-        Drawing<?> drawing = sheet.createDrawingPatriarch();
-        ClientAnchor anchor = drawing.createAnchor(0, 0, 0, 0, 2, 1, 3, 2); // Set the anchor coordinates to cover the first cell
-        anchor.setAnchorType(ClientAnchor.AnchorType.MOVE_AND_RESIZE); // Set the anchor type
-        InputStream logoInputStream = new ClassPathResource("logo.png").getInputStream();
-        byte[] logoBytes = IOUtils.toByteArray(logoInputStream);
-        int logoIndex = workbook.addPicture(logoBytes, Workbook.PICTURE_TYPE_PNG);
-        Picture picture = drawing.createPicture(anchor, logoIndex);
-        picture.resize(0.5, 1);
-
-        // Create the title cell
-        Row titleRow = sheet.createRow(0);
-        Cell titleCell = titleRow.createCell(0);
-        titleCell.setCellValue("Liste des clients à noter");
-        CellStyle titleStyle = workbook.createCellStyle();
-        Font titleFont = workbook.createFont();
-        titleFont.setBold(true);
-        titleFont.setFontName("Arial Black");
-        titleFont.setColor(IndexedColors.BLUE.getIndex());
-        titleFont.setFontHeightInPoints((short) 26);
-        titleStyle.setFont(titleFont);
-        titleStyle.setAlignment(HorizontalAlignment.CENTER);
-        titleCell.setCellStyle(titleStyle);
-
-        // Set the height of the first row
-        titleRow.setHeightInPoints(100);
-
-        // Set the background color for the first row
-        titleStyle.setFillForegroundColor(IndexedColors.PALE_BLUE.getIndex());
-        titleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-
-        // Merge the cells in the first row
-        sheet.addMergedRegion(new CellRangeAddress(0, 0, 0, 3));
-
-        // Write data to sheet
-        int rowNum = 2;
-        for (List<String> row : finaldata) {
-            Row sheetRow = sheet.createRow(rowNum++);
-            int colNum = 3;
-            for (String cellValue : row) {
-                Cell cell = sheetRow.createCell(colNum++);
-                cell.setCellValue(cellValue);
-                cell.setCellStyle(cellStyle);
+        // Set the height for all rows
+        for (int i = 0; i <= sheet.getLastRowNum(); i++) {
+            XSSFRow row = sheet.getRow(i);
+            if (row != null) {
+                row.setHeightInPoints(40);
             }
         }
 
-        // Save workbook to file
-        File fil = new File(DIRECTORY + fileName);
-        if (fil.delete()) {
-            System.err.println("yes");
-        } else {
-            System.err.println("no");
+        // Set the width for all columns (assuming there are data in each column)
+        int maxColumns = data.stream().mapToInt(List::size).max().orElse(0);
+        for (int i = 0; i < maxColumns; i++) {
+            sheet.setColumnWidth(i, 40 * 140); // 140 characters wide
         }
 
-        FileOutputStream outputStream = new FileOutputStream(DIRECTORY + fileName);
-        workbook.write(outputStream);
+        int rowIndex = 3; // Start writing data from the 4th row
+        int columnIndex = 1; // Start writing data from the 2nd column
+
+        // Set the height of the title row to 50 pixels
+        XSSFRow titleRow = sheet.createRow(4);
+        titleRow.setHeightInPoints(50);
+
+        XSSFCellStyle headerStyle = workbook.createCellStyle();
+        headerStyle.setAlignment(HorizontalAlignment.CENTER);
+        headerStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+        // Set the custom background color
+        XSSFColor customColor = new XSSFColor(new java.awt.Color(20, 50, 78));
+        headerStyle.setFillForegroundColor(customColor);
+        headerStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+
+        XSSFFont font = workbook.createFont();
+        font.setColor(IndexedColors.WHITE.getIndex());
+        headerStyle.setFont(font);
+
+        // Determine the number of cells in the table header
+        int headerCellCount = data.get(0).size();
+
+        // Merge the cells in cell 3,2
+        CellRangeAddress mergedRegion = new CellRangeAddress(2, 2, 1, headerCellCount);
+        sheet.addMergedRegion(mergedRegion);
+
+        // Create cell 3,2 with the "BIAT - Liste des clients" text
+        XSSFRow headerTextRow = sheet.createRow(2);
+        XSSFCell headerTextCell = headerTextRow.createCell(1, CellType.STRING);
+        headerTextCell.setCellValue("BIAT - Liste des clients");
+
+        // Set the height of the title cell to 50 pixels
+        headerTextRow.setHeightInPoints(50);
+
+        // Create a style for the title cell and set the white font color
+        XSSFCellStyle titleStyle = workbook.createCellStyle();
+        titleStyle.setFillForegroundColor(customColor); // Set the background color (blue)
+        titleStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        titleStyle.setAlignment(HorizontalAlignment.CENTER);
+        titleStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+        XSSFFont titleFont = workbook.createFont();
+        titleFont.setBold(true); // Set the bold attribute for the title font
+        titleFont.setColor(IndexedColors.WHITE.getIndex());
+        titleStyle.setFont(titleFont);
+        titleFont.setFontHeightInPoints((short) 24);
+        headerTextCell.setCellStyle(titleStyle);
+
+        // Create a font for bold text
+        XSSFFont boldFont = workbook.createFont();
+        boldFont.setBold(true); // Set the bold attribute
+
+        // Create a separate style for the bold text
+        XSSFCellStyle boldStyle = workbook.createCellStyle();
+        boldStyle.cloneStyleFrom(headerStyle); // Clone other style properties
+        boldStyle.setFont(boldFont);
+
+
+        // Create a font for the cells in data.get(0)
+        XSSFFont dataFont = workbook.createFont();
+        dataFont.setBold(true); // Set the bold attribute for the data cells
+        dataFont.setFontHeightInPoints((short) 13); // Set the font size to 15
+        dataFont.setColor(IndexedColors.WHITE.getIndex());
+
+        // Create a style for the data cells with grey background, borders, and the dataFont
+        XSSFCellStyle dataStyle = workbook.createCellStyle();
+        dataStyle.cloneStyleFrom(headerStyle); // Clone other style properties
+        dataStyle.setFont(dataFont);
+        dataStyle.setFillForegroundColor(IndexedColors.GREY_25_PERCENT.getIndex()); // Set the background color (grey)
+        dataStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        XSSFColor borderColor = new XSSFColor(new java.awt.Color(20, 50, 78));
+        dataStyle.setBorderTop(BorderStyle.THIN);
+        dataStyle.setTopBorderColor(borderColor);
+        dataStyle.setBorderBottom(BorderStyle.THIN);
+        dataStyle.setBottomBorderColor(borderColor);
+        dataStyle.setBorderLeft(BorderStyle.THIN);
+        dataStyle.setLeftBorderColor(borderColor);
+        dataStyle.setBorderRight(BorderStyle.THIN);
+        dataStyle.setRightBorderColor(borderColor);
+        XSSFRow headerRow1 = sheet.createRow(rowIndex);
+        XSSFRow headerRow2 = sheet.createRow(rowIndex + 1);
+
+        for (String cellData : data.get(0)) {
+            System.out.println("celldata : " + cellData);
+            XSSFCell cell1 = headerRow1.createCell(columnIndex, CellType.STRING);
+            XSSFCell cell2 = headerRow2.createCell(columnIndex, CellType.STRING);
+            cell1.setCellValue(cellData);
+            cell2.setCellValue(cellData);
+
+            // Merge the cells in the header
+            CellRangeAddress headerMergedRegion = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex);
+            sheet.addMergedRegion(headerMergedRegion);
+
+            cell1.setCellStyle(dataStyle);
+            cell2.setCellStyle(dataStyle);
+
+            columnIndex++;
+        }
+
+        rowIndex += 2; // Increment the rowIndex by 2 for the merged rows
+
+        for (int i = 1; i < data.size(); i++) {
+            List<String> rowData = data.get(i);
+            XSSFRow row1 = sheet.createRow(rowIndex);
+            XSSFRow row2 = sheet.createRow(rowIndex + 1);
+            boolean isFirstIteration = true;
+            columnIndex = 1; // Reset the columnIndex for the next row
+
+            for (String cellData : rowData) {
+                XSSFCell cell1 = row1.createCell(columnIndex, CellType.STRING);
+                XSSFCell cell2 = row2.createCell(columnIndex, CellType.STRING);
+                cell1.setCellValue(cellData);
+                if (!isFirstIteration) {
+                    cell2.setCellValue(cellData);
+                }
+
+                XSSFCellStyle cellStyle = workbook.createCellStyle();
+                cellStyle.setAlignment(HorizontalAlignment.CENTER);
+                cellStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+                cellStyle.setFont(font);
+
+                // Merge the cells horizontally and vertically
+                CellRangeAddress mergedRegion1 = new CellRangeAddress(rowIndex, rowIndex + 1, columnIndex, columnIndex);
+                sheet.addMergedRegion(mergedRegion1);
+
+                // Apply borders to the cell and set the border color to blue
+                RegionUtil.setBorderTop(BorderStyle.THIN, mergedRegion1, sheet);
+                RegionUtil.setTopBorderColor(borderColor.getIndexed(), mergedRegion1, sheet);
+                RegionUtil.setBorderBottom(BorderStyle.THIN, mergedRegion1, sheet);
+                RegionUtil.setBottomBorderColor(borderColor.getIndexed(), mergedRegion1, sheet);
+                RegionUtil.setBorderLeft(BorderStyle.THIN, mergedRegion1, sheet);
+                RegionUtil.setLeftBorderColor(borderColor.getIndexed(), mergedRegion1, sheet);
+                RegionUtil.setBorderRight(BorderStyle.THIN, mergedRegion1, sheet);
+                RegionUtil.setRightBorderColor(borderColor.getIndexed(), mergedRegion1, sheet);
+
+                columnIndex++;
+                isFirstIteration = false;
+            }
+
+            rowIndex += 2; // Increment the rowIndex by 2 for the merged rows
+        }
+
+
+        FileOutputStream outputFile = new FileOutputStream(DIRECTORY + newFileName);
+        workbook.write(outputFile);
+
+        templateFile.close();
+        outputFile.close();
         workbook.close();
-        outputStream.close();
-    }*/
+    }
 
 
     private static char randomChar() {
@@ -541,6 +626,8 @@ public class AttachementService implements IAttachementService {
         char start = (rand < 26) ? 'A' : 'a';
         return (char) (start + rand % 26);
     }
+
+
     @Async
     public void sendEmail(String to, String sub, String msg){
         SimpleMailMessage mailMessage = new SimpleMailMessage();
