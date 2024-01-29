@@ -201,6 +201,15 @@
 			<artifactId>javacv</artifactId>
 			<version>1.5.6</version>
 		</dependency>
+
+
+
+		<dependency>
+			<groupId>com.oracle.database.jdbc</groupId>
+			<artifactId>ojdbc11</artifactId>
+			<version>19.3.0.0</version> <!-- Assurez-vous d'utiliser la version correcte -->
+		</dependency>
+
 	</dependencies>
 
 	<build>
