@@ -84,6 +84,7 @@ public class AttachementService implements IAttachementService {
         if(att == null){
             return false;
         }else{
+            //String QUERY = "DELETE FROM \"Message_attachements\" WHERE attachements_id = " + id + ";";
             String QUERY = "DELETE FROM public.\"Message_attachements\" WHERE attachements_id = " + id;
             try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
                 try (PreparedStatement st = conn.prepareStatement(QUERY)) {
@@ -97,6 +98,7 @@ public class AttachementService implements IAttachementService {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            //String QUERY1 = "DELETE FROM public.\"Attachement\" WHERE \"id\" =" + id + ";";
             String QUERY1 = "DELETE FROM public.\"Attachement\" WHERE \"id\" =" + id;
             try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
                 try (PreparedStatement st = conn.prepareStatement(QUERY1)) {

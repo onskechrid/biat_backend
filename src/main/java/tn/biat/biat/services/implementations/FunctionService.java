@@ -37,6 +37,8 @@ public class FunctionService implements IFunctionService {
     private String user;
     @Value("${spring.datasource.password}")
     private String password;
+    @Value("${spring.datasource.url}")
+    private String DBURL;
 
     @Autowired
     public FunctionService( @Lazy HistoryService historyService){
@@ -108,7 +110,7 @@ public class FunctionService implements IFunctionService {
     public Map<String, List<String>> getDatabaseSchema(){
         JSONArray json = new JSONArray();
         Map<String, List<String>> map = new HashMap<>();
-        try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/biat", user,  this.password);) {
+        try (Connection conn = DriverManager.getConnection(DBURL, user,  this.password);) {
             try (PreparedStatement st = conn.prepareStatement("SELECt table_name as d, column_name as n FROM information_schema.columns WHERE table_schema='public' order by d;\n")) { // d hiya table name
                 ResultSet resultSet = st.executeQuery();
                 ResultSetMetaData md = resultSet.getMetaData();
@@ -193,7 +195,7 @@ public class FunctionService implements IFunctionService {
     @Override
     public JSONArray queryinput(String QUERY) {
         JSONArray json = new JSONArray();
-        try (Connection conn = DriverManager.getConnection("jdbc:postgresql://localhost:5432/biat", user,  this.password);) {
+        try (Connection conn = DriverManager.getConnection(DBURL, user,  this.password);) {
             try (PreparedStatement st = conn.prepareStatement(QUERY)) {
                 ResultSet resultSet = st.executeQuery();
 

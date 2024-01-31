@@ -68,6 +68,7 @@ public class ProfilesService implements IProfilesService {
         if(profile == null){
             return false;
         }else {
+            //String QUERY = "
             String QUERY = "UPDATE public.\"Users\" SET profile='NewUser' WHERE profile = '" + name + "';";
             try (Connection conn = DriverManager.getConnection(DBURL, user, password);) {
                 try (PreparedStatement st = conn.prepareStatement(QUERY)) {
