@@ -1,4 +1,7 @@
-Project build error: Non-resolvable parent POM for tn.biat:biat:0.0.1-SNAPSHOT: The following artifacts could not be resolved: org.springframework.boot:spring-boot-starter-parent:pom:2.7.6 (absent): org.springframework.boot:spring-boot-starter-parent:pom:2.7.6 failed to transfer from https://repo.maven.apache.org/maven2 during a previous attempt. This failure was cached in the local repository and resolution is not reattempted until the update interval of central has elapsed or updates are forced. Original error: Could not transfer artifact org.springframework.boot:spring-boot-starter-parent:pom:2.7.6 from/to central (https://repo.maven.apache.org/maven2): Connection reset and 'parent.relativePath' points at no local POMJava(0)
-project>parent
-
-The location of the parent project, if one exists. Values from the parent project will be the default for this project if they are left unspecified. The location is given as a group ID, artifact ID and version.
+[ERROR] Failed to execute goal org.codehaus.mojo:exec-maven-plugin:1.6.0:exec (default) on project biat: Command execution failed.: Cannot run program "ng" (in directory "C:\Users\06159\OneDrive - Banque Internationale Arabe de Tunisie\Bureau\APP\biat_backend\src\main\resources\frontend\biat_front"): CreateProcess error=2, Le fichier spécifié est introuvable -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/MojoExecutionException
