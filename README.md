@@ -1,1 +1,1 @@
-Failed to execute mojo org.apache.maven.plugins:maven-resources-plugin:3.2.0:resources {execution: default-resources} (org.apache.maven.plugins:maven-resources-plugin:3.2.0:resources:default-resources:process-resources)
+mvn install:install-file -Dfile=path/to/ojdbc11.jar -DgroupId=com.oracle.database.jdbc -DartifactId=ojdbc11 -Dversion=11.2.0.4 -Dpackaging=jar
