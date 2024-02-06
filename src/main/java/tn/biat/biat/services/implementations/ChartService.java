@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.biat.biat.services.IChartService;
 import tn.biat.biat.services.IFunctionService;
+import tn.biat.biat.utils.QueryExecutor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.List;
 public class ChartService implements IChartService {
 
     @Autowired
-    IFunctionService iFunctionService;
+    QueryExecutor queryExecutor;
 
     @Override
     public List<String> getCategories(String unite){
@@ -41,7 +42,7 @@ public class ChartService implements IChartService {
                 "FROM \"LST\" l\n" +
                 "WHERE l.unite = '"+unite+"'\n" +
                 "ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY');";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -64,7 +65,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getSeries(String unite){
         String query = "SELECT CAST(ROUND(eng_global::numeric / 1000000 , 1) AS TEXT) FROM \"LST\" l WHERE l.unite = '"+unite+"' ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY')\n";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -85,7 +86,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getDetails(String unite, String engGlobal){
         String query = "select CAST(ROUND(pme_eng ::numeric / 1000000 , 1) AS text) as pme_eng , CAST(ROUND(prf_eng ::numeric / 1000000 , 1) AS text) as prf_eng , CAST(ROUND(par_eng ::numeric / 1000000 , 1) AS text) as par_eng from \"LST\" l WHERE l.unite = '"+unite+"' and CAST(ROUND(eng_global::numeric / 1000000 , 1) AS text) = '"+engGlobal+"'\n";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -114,7 +115,7 @@ public class ChartService implements IChartService {
         String query = "SELECT CAST(ROUND(eng_global::numeric / 1000000 , 1) AS TEXT) as eng_g FROM \"LST\" l WHERE l.unite = '"+unite+"' and  CASE EXTRACT(MONTH FROM TO_DATE(l.periode, 'MM/DD/YYYY')) WHEN 1 THEN 'janvier' WHEN 2 THEN 'février' WHEN 3 THEN 'mars'\n" +
                 "WHEN 4 THEN 'avril' WHEN 5 THEN 'mai' WHEN 6 THEN 'juin'  WHEN 7 THEN 'juillet' WHEN 8 THEN 'août' WHEN 9 THEN 'septembre'\n" +
                 "WHEN 10 THEN 'octobre' WHEN 11 THEN 'novembre' WHEN 12 THEN 'décembre' END || ' ' || RIGHT(EXTRACT(YEAR FROM TO_DATE(l.periode, 'MM/DD/YYYY'))::text, 2) = '"+p+"';";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
         try {
@@ -133,7 +134,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getTauxDeRenvPCG(String unite){
         String query = "SELECT ROUND((nbr_renouv::numeric / nbr_total::numeric) * 100, 1) AS taux_renv FROM \"LST\" l WHERE l.unite = '"+unite+"' ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY');";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -154,7 +155,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getTauxDeSaisieDeBilan(String unite) {
         String query = "SELECT ROUND((nbr_bilan_saisie ::numeric / nbr_relation ::numeric) * 100, 1) AS taux_sb FROM \"LST\" l WHERE l.unite = '"+unite+"' ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY');";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -175,7 +176,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getTauxCDL(String unite) {
         String query = "SELECT ROUND((cdl_mnt ::numeric / eng_global ::numeric) * 100, 1) AS taux_cdl FROM \"LST\" l WHERE l.unite = '"+unite+"' ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY');";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -196,7 +197,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getTauxGenerationCDL(String unite) {
         String query = "SELECT ROUND((total_gen ::numeric / ref_saine_mnt ::numeric) * 100, 1) AS taux_gcdl FROM \"LST\" l WHERE l.unite = '"+unite+"' ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY');";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -217,7 +218,7 @@ public class ChartService implements IChartService {
     @Override
     public List<Double> getTauxGenerationCreditParticuliers(String unite) {
         String query = "SELECT ROUND((par_gen ::numeric / par_ref_saine_mnt ::numeric) * 100, 1) AS taux_gcp FROM \"LST\" l WHERE l.unite = '"+unite+"' ORDER BY TO_DATE(l.periode, 'MM/DD/YYYY');\n";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;

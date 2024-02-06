@@ -11,6 +11,7 @@ import tn.biat.biat.entities.otherDB.User;
 import tn.biat.biat.repository.ComposantRepository;
 import tn.biat.biat.services.IComposantService;
 import tn.biat.biat.services.ITreeService;
+import tn.biat.biat.utils.QueryExecutor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -28,7 +29,7 @@ public class ComposantService implements IComposantService {
     @Autowired
     ComposantRepository composantRepository;
     @Autowired
-    FunctionService functionService;
+    QueryExecutor queryExecutor;
     @Autowired
     CustomUserDetailsService userService;
     @Autowired
@@ -73,7 +74,7 @@ public class ComposantService implements IComposantService {
 
     @Override
     public JSONArray apply(String query){
-        JSONArray json = functionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
         System.out.println(json);
         return json;
     }
@@ -106,7 +107,7 @@ public class ComposantService implements IComposantService {
             }
         }
         System.out.println(queryWithFilter);
-        JSONArray json = functionService.queryinput(queryWithFilter);
+        JSONArray json = queryExecutor.queryinput(queryWithFilter);
         System.out.println(json);
         return json;
     }

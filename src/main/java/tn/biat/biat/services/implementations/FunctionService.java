@@ -9,12 +9,12 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import tn.biat.biat.BiatApplication;
 import tn.biat.biat.entities.otherDB.Function;
 import tn.biat.biat.repository.FunctionRepository;
 import tn.biat.biat.services.IFunctionService;
+import tn.biat.biat.utils.QueryExecutor;
 
 
 import java.sql.*;
@@ -28,10 +28,11 @@ public class FunctionService implements IFunctionService {
 
     @Autowired
     FunctionRepository functionRepository;
-
     @Autowired
     JavaMailSender javaMailSender;
     HistoryService historyService;
+    @Autowired
+    QueryExecutor queryExecutor;
 
     @Value("${spring.datasource.username}")
     private String user;
@@ -171,7 +172,7 @@ public class FunctionService implements IFunctionService {
         List<Function> fns = functionRepository.findAll();
         List<String> fn_names = new ArrayList<>();
         for(Function f : fns){
-            JSONArray js = queryinput(f.getQuery());
+            JSONArray js = queryExecutor.queryinput(f.getQuery());
             if(!js.isEmpty()){
                 fn_names.add(f.getName());
             }
@@ -192,7 +193,7 @@ public class FunctionService implements IFunctionService {
         mailMessage.setFrom("ons.kechrid@esprit.tn");
         javaMailSender.send(mailMessage);
     }
-    @Override
+    /*@Override
     public JSONArray queryinput(String QUERY) {
         JSONArray json = new JSONArray();
         try (Connection conn = DriverManager.getConnection(DBURL, user,  this.password);) {
@@ -236,7 +237,7 @@ public class FunctionService implements IFunctionService {
             e.printStackTrace();
         }
         return json;
-    }
+    }*/
 
     @Override
     public List<String> getTableAndColumnNames(String word) {

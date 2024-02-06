@@ -13,6 +13,7 @@ import tn.biat.biat.entities.otherDB.*;
 import tn.biat.biat.repository.ComposantRepository;
 import tn.biat.biat.repository.MenuRepository;
 import tn.biat.biat.services.*;
+import tn.biat.biat.utils.QueryExecutor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -35,6 +36,8 @@ public class MenuService implements IMenuService {
     IPermissionsService iPermissionsService;
     @Autowired
     ComposantRepository composantRepository;
+    @Autowired
+    QueryExecutor queryExecutor;
 
     HistoryService historyService;
 
@@ -266,7 +269,7 @@ public class MenuService implements IMenuService {
     public List gettreeminayylevel(Long idd) { //yaatyk tree ta3 ayy menu min ay level: exp: m8->m9->m10 sachant illi m9 submenu lil m8 w level de m8 egale a 2
         //String query = "select id, idparent||','||id as idd from \"Menu\" order by id";
         String query = "with recursive \"menus_tree\" as (select m.\"id\",m.\"level\",m.\"id\"::VARCHAR as \"menu_id\" from \"Menu\" m where id="+idd+" union all select m2.\"id\",m2.\"level\", \"menu_id\"::VARCHAR ||','||m2.id::VARCHAR from \"Menu\" m2 join \"menus_tree\" et on et.\"id\" = m2.\"idparent\") select \"id\" , \"menu_id\" from menus_tree";
-        JSONArray json = functionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;
@@ -291,7 +294,7 @@ public class MenuService implements IMenuService {
     public List gettreeminlevel1() { //exemple m1->m2->m3->m4  sachant que m1 level 1, m2 submenu lil m1 , m3 submenu lil m2 ....
         //String query = "select id, idparent||','||id as idd from \"Menu\" order by id";
         String query = "with recursive \"menus_tree\" as (select m.\"id\",m.\"level\",m.\"id\"::VARCHAR as \"menu_id\" from \"Menu\" m union all select m2.\"id\",m2.\"level\", \"menu_id\"::VARCHAR ||','||m2.id::VARCHAR from \"Menu\" m2 join \"menus_tree\" et on et.\"id\" = m2.\"idparent\") select \"id\" , \"menu_id\" from menus_tree";
-        JSONArray json = functionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;

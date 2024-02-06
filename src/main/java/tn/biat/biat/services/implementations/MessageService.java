@@ -21,6 +21,7 @@ import tn.biat.biat.repository.AttachementRepository;
 import tn.biat.biat.repository.MessageRepository;
 import tn.biat.biat.repository.TreeRepository;
 import tn.biat.biat.services.*;
+import tn.biat.biat.utils.QueryExecutor;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -49,7 +50,7 @@ public class MessageService implements IMessageService {
     @Autowired
     AttachementReclamationRepository attachementReclamationRepository;
     @Autowired
-    IFunctionService iFunctionService;
+    QueryExecutor queryExecutor;
     @Autowired
     CustomUserDetailsService userService;
     @Autowired
@@ -399,7 +400,7 @@ public class MessageService implements IMessageService {
                 ") SELECT\n" +
                 "  sum(TO_DATE('31/03/2023', 'DD/MM/YY') - TO_DATE(date_string, 'DD/MM/YY') + 1) AS days_between\n" +
                 "FROM string_list;";
-        JSONArray x = iFunctionService.queryinput(q);
+        JSONArray x = queryExecutor.queryinput(q);
         String ss = x.toString().replace("[{\"days_between\":","");
         ss = ss.replace("}]","");
         return ss;
@@ -408,7 +409,7 @@ public class MessageService implements IMessageService {
     @Override
     public String getPeriode(String cpte){
         String q = "select periode from risk_cpte rc where cpte = '"+cpte+"'";
-        JSONArray j = iFunctionService.queryinput(q);
+        JSONArray j = queryExecutor.queryinput(q);
         String s = j.toString().replace("[{\"periode\":\"","");
         s = s.replace("\"}]","");
         s = s.replace("\\/","/");
@@ -422,7 +423,7 @@ public class MessageService implements IMessageService {
                 "SELECT (TO_DATE('"+periode+"', 'MM/DD/YYYY') - TO_DATE(date_string, 'DD/MM/YY') +1) AS days_between\n" +
                 "FROM string_list\n" +
                 "WHERE date_string = '"+date+"';\n;";
-        JSONArray x = iFunctionService.queryinput(q);
+        JSONArray x = queryExecutor.queryinput(q);
         String ss = x.toString().replace("[{\"days_between\":","");
         ss = ss.replace("}]","");
         return ss;
@@ -431,7 +432,7 @@ public class MessageService implements IMessageService {
     @Override
     public JSONArray getAncImpTable(String cpte){
         String query = "select cpte, periode , date_ech, imp_int, imp_pr from dwm_pd_payment_due_details dppdd where cpte ='"+cpte+"'";
-        JSONArray jsonArray = iFunctionService.queryinput(query);
+        JSONArray jsonArray = queryExecutor.queryinput(query);
         return jsonArray;
     }
 
@@ -455,7 +456,7 @@ public class MessageService implements IMessageService {
     }
     public String getDateEch(String montant){
         String s = "select date_ech from dwm_pd_payment_due_details dppdd where imp_pr = '"+montant+"'";
-        JSONArray j = iFunctionService.queryinput(s);
+        JSONArray j = queryExecutor.queryinput(s);
         String ss = j.toString().replace("[{\"date_ech\":\"","");
         ss = ss.replace("\"}]","");
         ss = ss.replace("\\/","/");
@@ -465,7 +466,7 @@ public class MessageService implements IMessageService {
     @Override
     public String getMotif(String cpte){
         String s = "select motif from risk_cpte where cpte = '"+cpte+"'";
-        JSONArray j = iFunctionService.queryinput(s);
+        JSONArray j = queryExecutor.queryinput(s);
         String ss = j.toString();
         ss = ss.replace("[{\"motif\":\"","");
         ss = ss.replace("\"}]","");
@@ -533,7 +534,7 @@ public class MessageService implements IMessageService {
     @Override
     public List<String> getListAgiosG(String cpte){
         String query = "SELECT agios FROM risk_classe where cpte = '"+cpte+"' ORDER BY to_date(periode, 'MM/DD/YYYY') desc";
-        JSONArray j = iFunctionService.queryinput(query);
+        JSONArray j = queryExecutor.queryinput(query);
         String s = j.toString().replace("{\"agios\":\"","");
         s = s.replace("\"},{\"agios\":\"",",");
         s = s.replace("\"}]","]");
@@ -565,7 +566,7 @@ public class MessageService implements IMessageService {
     @Override
     public String getSolde(String cpte){
         String query2 = "select sum(abs(soldcpte ::integer)) as sum from risk_classe rc where cpte = '"+cpte+"'";
-        JSONArray j2 = iFunctionService.queryinput(query2);
+        JSONArray j2 = queryExecutor.queryinput(query2);
         int startIndex = j2.toString().indexOf(":") + 1;
         int endIndex = j2.toString().indexOf("}");
 
@@ -590,7 +591,7 @@ public class MessageService implements IMessageService {
     @Override
     public JSONArray getGelTable(String cpte){
         String query = "select cpte, agios, periode,soldcpte from risk_classe rc where cpte = '"+cpte+"' order by TO_DATE(periode, 'MM/DD/YYYY') desc ";
-        JSONArray j = iFunctionService.queryinput(query);
+        JSONArray j = queryExecutor.queryinput(query);
         return j;
     }
     @Override
@@ -732,7 +733,7 @@ public class MessageService implements IMessageService {
                 "  SELECT m2.id FROM \"Message\" m2 JOIN message_chain mc ON m2.idresponsemessage = mc.id\n" +
                 ")\n" +
                 "SELECT id FROM \"Message\" WHERE id IN (SELECT id FROM message_chain) ORDER BY timestamp DESC";
-        JSONArray json = iFunctionService.queryinput(query);
+        JSONArray json = queryExecutor.queryinput(query);
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonArray = null;

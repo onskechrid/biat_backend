@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.biat.biat.entities.otherDB.Function;
 import tn.biat.biat.services.IFunctionService;
+import tn.biat.biat.utils.QueryExecutor;
 
 import java.util.List;
 
@@ -21,6 +22,8 @@ public class FunctionController {
 
     @Autowired
     private IFunctionService iFunctionService;
+    @Autowired
+    QueryExecutor queryExecutor;
 
     @GetMapping("/showAll")
     public ResponseEntity<List<Function>> get(){
@@ -106,7 +109,7 @@ public class FunctionController {
     @GetMapping("/query/{queryinput}")
     public ResponseEntity<JSONArray> queryinput(@PathVariable("queryinput") String QUERY){
         return ResponseEntity.status(HttpStatus.OK).body(
-            iFunctionService.queryinput(QUERY)
+            queryExecutor.queryinput(QUERY)
         );
     }
     @GetMapping("/query/match/{syl}")

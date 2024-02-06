@@ -15,7 +15,7 @@ public interface    IFunctionService {
     boolean get_query(Long id);
     boolean delete(Long id);
     Boolean updateFnStatus(Long id, int update);
-    JSONArray queryinput(String QUERY);
+    //JSONArray queryinput(String QUERY);
 
     List<String> getTableAndColumnNames(String word);
     Map<String, List<String>> getDatabaseSchema();
