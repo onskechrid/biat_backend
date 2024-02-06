@@ -1,14 +1,12 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
         {
             "type": "java",
-            "name": "Current File",
+            "name": "Spring Boot App",
             "request": "launch",
-            "mainClass": "${file}"
+            "mainClass": "tn.biat.biat.BiatApplication", // Update with the fully qualified name of your main class
+            "projectName": "biat" // Update with the name of your project
         }
     ]
 }
