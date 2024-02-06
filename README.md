@@ -1,12 +1,1 @@
-{
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "type": "java",
-            "name": "Spring Boot App",
-            "request": "launch",
-            "mainClass": "tn.biat.biat.BiatApplication", // Update with the fully qualified name of your main class
-            "projectName": "biat" // Update with the name of your project
-        }
-    ]
-}
+Failed to execute mojo org.apache.maven.plugins:maven-resources-plugin:3.2.0:resources {execution: default-resources} (org.apache.maven.plugins:maven-resources-plugin:3.2.0:resources:default-resources:process-resources)
