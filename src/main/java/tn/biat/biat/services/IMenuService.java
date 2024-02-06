@@ -1,6 +1,5 @@
 package tn.biat.biat.services;
 
-import tn.biat.biat.entities.otherDB.Composant;
 import tn.biat.biat.entities.otherDB.Menu;
 
 import java.util.List;

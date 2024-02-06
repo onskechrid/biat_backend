@@ -14,12 +14,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.python.util.PythonInterpreter;
 import tn.biat.biat.services.IFunctionService;
-import tn.biat.biat.utils.PythonRunner;
-
 import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 
+@SuppressWarnings("deprecation")
 @EnableScheduling
 @SpringBootApplication(exclude = {SecurityAutoConfiguration.class })
 @CrossOrigin(origins = "*")

@@ -1,7 +1,5 @@
 package tn.biat.biat.services;
 
-import tn.biat.biat.entities.otherDB.User;
-
 import java.util.List;
 
 public interface ITreeService {

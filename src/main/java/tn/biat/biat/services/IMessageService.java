@@ -1,8 +1,6 @@
 package tn.biat.biat.services;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import net.minidev.json.JSONArray;
-import tn.biat.biat.entities.otherDB.Attachement;
 import tn.biat.biat.entities.otherDB.Client;
 import tn.biat.biat.entities.otherDB.Message;
 
