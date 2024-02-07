@@ -1,1 +1,1 @@
-Failed to execute goal on project biat: Could not resolve dependencies for project tn.biat:biat:jar:0.0.1-SNAPSHOT: The following artifacts could not be resolved: com.oracle.database.jdbc:ojdbc11:jar:21.8.0.0.0 (absent): Could not find artifact com.oracle.database.jdbc:ojdbc11:jar:21.8.0.0.0 in central (https://repo.maven.apache.org/maven2) -> [Help 1]
+Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.2:test
