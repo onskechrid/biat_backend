@@ -1,1 +1,1 @@
-Failed to execute goal org.apache.maven.plugins:maven-surefire-plugin:2.22.2:test
+Could not find artifact org.apache.maven.plugins:maven-surefire-plugin:jar:2.22s.2 in central 
