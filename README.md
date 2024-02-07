@@ -1,13 +1,9 @@
-java.lang.IllegalStateException: Failed to load ApplicationContext
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'entityManagerFactory' defined in class path resource [org/springframework/boot/autoconfigure/orm/jpa/HibernateJpaConfiguration.class]: Invocation of init method failed; nested exception is javax.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution
-Caused by: javax.persistence.PersistenceException: [PersistenceUnit: default] Unable to build Hibernate SessionFactory; nested exception is org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL 
-execution
-Caused by: org.hibernate.exception.GenericJDBCException: Unable to open JDBC Connection for DDL execution
-Caused by: java.sql.SQLException:
-ORA-00604: error occurred at recursive SQL level 1
-ORA-01882: timezone region not found
+# Database connection properties
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521:yourDatabaseName
+spring.datasource.username=yourUsername
+spring.datasource.password=yourPassword
+spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
 
-
-
-Caused by: java.sql.SQLException: ORA-00604: error occurred at recursive SQL level 1
-ORA-01882: timezone region not found
+# Hibernate properties
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.Oracle11gDialect
+spring.jpa.properties.hibernate.jdbc.time_zone=UTC
