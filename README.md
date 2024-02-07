@@ -8,7 +8,7 @@ spring.datasource.username=rsq
 spring.datasource.password=rsq2009
 spring.datasource.driver-class-name=oracle.jdbc.OracleDriver
 spring.jpa.database-platform=org.hibernate.dialect.Oracle12cDialect
-spring.jpa.properties.hibernate.jdbc.time_zone=Africa/Tunis
+spring.jpa.properties.hibernate.jdbc.time_zone=Europe/Paris
 
 # Hibernate settings
 spring.jpa.hibernate.ddl-auto=create
