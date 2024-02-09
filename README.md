@@ -409,9 +409,74 @@ public class ONS_Attachement implements Serializable {
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+import java.sql.Connection; 
+import java.sql.DriverManager; 
+import java.sql.SQLException;
+
+public class OracleDatabaseConnectionTest {
+
+	public static void main(String[] args) {
+		Connection connection = null;
+		try {
+			// Charger le pilote JDBC Oracle
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+
+			// Établir la connexion à la base de données Oracle
+			String url = "jdbc:oracle:thin:@172.28.70.46:1526:EXPL2?oracle.jdbc.timezoneAsRegion=false";
+			String username = "rsq";
+			String password = "rsq2009";
+			connection = DriverManager.getConnection(url, username, password);
+
+			// Vérifier si la connexion est réussie
+			if (connection != null) {
+				System.out.println("Connexion à la base de données Oracle réussie !");
+			} else {
+				System.out.println("La connexion à la base de données Oracle a échoué !");
+			}
+		} catch (ClassNotFoundException e) {
+			System.out.println("Erreur : pilote JDBC Oracle introuvable !");
+			e.printStackTrace();
+		} catch (SQLException e) {
+			System.out.println("Erreur : échec de la connexion à la base de données Oracle !");
+			e.printStackTrace();
+		} finally {
+			// Fermer la connexion
+			if (connection != null) {
+				try {
+					connection.close();
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
+}
 
 C:\Users\06159>java -cp C:/Users/06159/.m2/repository/com/oracle/database/jdbc/ojdbc6/11.2.0.4/ojdbc6.jar OracleDatabaseConnectionTest.java
 Erreur : Ã©chec de la connexion Ã  la base de donnÃ©es Oracle !
-java.sql.SQLException: ORA-00604: error occurred at recursive SQL level 1
-ORA-01882: timezone region not found
+java.sql.SQLException: Listener refused the connection with the following error:
+ORA-12505, TNS:listener does not currently know of SID given in connect descriptor
+
+        at oracle.jdbc.driver.T4CConnection.logon(T4CConnection.java:419)
+        at oracle.jdbc.driver.PhysicalConnection.<init>(PhysicalConnection.java:536)
+        at oracle.jdbc.driver.T4CConnection.<init>(T4CConnection.java:228)
+        at oracle.jdbc.driver.T4CDriverExtension.getConnection(T4CDriverExtension.java:32)
+        at oracle.jdbc.driver.OracleDriver.connect(OracleDriver.java:521)
+        at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:677)
+        at java.sql/java.sql.DriverManager.getConnection(DriverManager.java:228)
+        at OracleDatabaseConnectionTest.main(OracleDatabaseConnectionTest.java:17)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:64)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:564)
+        at jdk.compiler/com.sun.tools.javac.launcher.Main.execute(Main.java:415)
+        at jdk.compiler/com.sun.tools.javac.launcher.Main.run(Main.java:192)
+        at jdk.compiler/com.sun.tools.javac.launcher.Main.main(Main.java:132)
+Caused by: oracle.net.ns.NetException: Listener refused the connection with the following error:
+ORA-12505, TNS:listener does not currently know of SID given in connect descriptor
+
+        at oracle.net.ns.NSProtocol.connect(NSProtocol.java:386)
+        at oracle.jdbc.driver.T4CConnection.connect(T4CConnection.java:1054)
+        at oracle.jdbc.driver.T4CConnection.logon(T4CConnection.java:308)
+        ... 14 more
 
