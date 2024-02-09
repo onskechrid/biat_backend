@@ -403,7 +403,6 @@ public class ONS_Attachement implements Serializable {
 }
 
 
-https://stackoverflow.com/questions/48964963/cannot-load-driver-class-oracle-jdbc-oracledriver-in-spring
 
 
 
