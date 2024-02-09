@@ -410,47 +410,10 @@ public class ONS_Attachement implements Serializable {
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-
+C:\Users\06159>javac -cp C:/Tools/sqldeveloper/jdbc/lib/ojdbc11.jar testConnexionBase.java
+testConnexionBase.java:5: error: class OracleDatabaseConnectionTest is public, should be declared in a file named OracleDatabaseConnectionTest.java
 public class OracleDatabaseConnectionTest {
-
-    public static void main(String[] args) {
-        Connection connection = null;
-        try {
-            // Charger le pilote JDBC Oracle
-            Class.forName("oracle.jdbc.driver.OracleDriver");
-
-            // Établir la connexion à la base de données Oracle
-            String url = "jdbc:oracle:thin:@//hostname:port/service_name";
-            String username = "your_username";
-            String password = "your_password";
-            connection = DriverManager.getConnection(url, username, password);
-
-            // Vérifier si la connexion est réussie
-            if (connection != null) {
-                System.out.println("Connexion à la base de données Oracle réussie !");
-            } else {
-                System.out.println("La connexion à la base de données Oracle a échoué !");
-            }
-        } catch (ClassNotFoundException e) {
-            System.out.println("Erreur : pilote JDBC Oracle introuvable !");
-            e.printStackTrace();
-        } catch (SQLException e) {
-            System.out.println("Erreur : échec de la connexion à la base de données Oracle !");
-            e.printStackTrace();
-        } finally {
-            // Fermer la connexion
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-}
+       ^
+1 error
 
 
