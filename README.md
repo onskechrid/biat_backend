@@ -407,7 +407,36 @@ public class ONS_Attachement implements Serializable {
 
 
 
-
+--------------------------------------------------------------------------------------------------------------------------------------------------------------
+PS C:\Users\06159\OneDrive - Banque Internationale Arabe de Tunisie\Bureau\APP\biat_backend> mvn install:install-file -Dfile=C:/Users/06159/.m2/repository/com/oracle/database/jdbc/ojdbc6/11.2.0.4/ojdbc6.jar -DgroupId=com.oracle -DartifactId=ojdbc6 -Dversion=11.2.0.4 -Dpackaging=jar
+[INFO] Scanning for projects...
+[INFO] 
+[INFO] ----------------------------< tn.biat:biat >----------------------------
+[INFO] Building biat 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO]
+[INFO] --- install:2.5.2:install-file (default-cli) @ biat ---
+[INFO] pom.xml not found in ojdbc6.jar
+[INFO] Installing C:\Users\06159\.m2\repository\com\oracle\database\jdbc\ojdbc6\11.2.0.4\ojdbc6.jar to C:\Users\06159\.m2\repository\com\ojdbc6\11\ojdbc6-11.jar
+[INFO] 
+[INFO] ----------------------------< tn.biat:biat >----------------------------
+[INFO] Building biat 0.0.1-SNAPSHOT
+[INFO]   from pom.xml
+[INFO] --------------------------------[ jar ]---------------------------------
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD FAILURE
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time:  0.400 s
+[INFO] Finished at: 2024-02-09T10:19:42+01:00
+[INFO] ------------------------------------------------------------------------
+[ERROR] Unknown lifecycle phase ".oracle". You must specify a valid lifecycle phase or a goal in the format <plugin-prefix>:<goal> or <plugin-group-id>:<plugin-artifact-id>[:<plugin-version>]:<goal>. Available lifecycle phases are: pre-clean, clean, post-clean, validate, initialize, generate-sources, process-sources, generate-resources, process-resources, compile, process-classes, generate-test-sources, process-test-sources, generate-test-resources, process-test-resources, test-compile, process-test-classes, test, prepare-package, package, pre-integration-test, integration-test, post-integration-test, verify, install, deploy, pre-site, site, post-site, site-deploy. -> [Help 1]
+[ERROR]
+[ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+[ERROR] Re-run Maven using the -X switch to enable full debug logging.
+[ERROR]
+[ERROR] For more information about the errors and possible solutions, please read the following articles:
+[ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/LifecyclePhaseNotFoundException
 
 
 
