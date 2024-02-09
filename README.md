@@ -409,3 +409,4 @@ public class ONS_Attachement implements Serializable {
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+Malheureusement, non. Malgré les changements que vous m'avez demandé d'effectuer, je rencontre toujours les mêmes erreurs. Peut-être est-ce dû à la version du fichier JAR ojdbc ?
