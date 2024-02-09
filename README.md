@@ -410,10 +410,9 @@ public class ONS_Attachement implements Serializable {
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-C:\Users\06159>javac -cp C:/Tools/sqldeveloper/jdbc/lib/ojdbc11.jar testConnexionBase.java
-testConnexionBase.java:5: error: class OracleDatabaseConnectionTest is public, should be declared in a file named OracleDatabaseConnectionTest.java
-public class OracleDatabaseConnectionTest {
-       ^
-1 error
+C:\Users\06159>java -cp .:C:/Tools/sqldeveloper/jdbc/lib/ojdbc11.jar OracleDatabaseConnectionTest
+Error: Could not find or load main class OracleDatabaseConnectionTest
+Caused by: java.lang.ClassNotFoundException: OracleDatabaseConnectionTest
+
 
 
