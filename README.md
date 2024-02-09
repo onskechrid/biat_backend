@@ -408,35 +408,37 @@ public class ONS_Attachement implements Serializable {
 
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
-public class DatabaseConnectionTest {
+public class OracleDatabaseConnectionTest {
 
     public static void main(String[] args) {
         Connection connection = null;
         try {
-            // Charger le pilote JDBC
-            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Charger le pilote JDBC Oracle
+            Class.forName("oracle.jdbc.driver.OracleDriver");
 
-            // Établir la connexion à la base de données
-            String url = "jdbc:mysql://localhost:3306/your_database";
+            // Établir la connexion à la base de données Oracle
+            String url = "jdbc:oracle:thin:@//hostname:port/service_name";
             String username = "your_username";
             String password = "your_password";
             connection = DriverManager.getConnection(url, username, password);
 
             // Vérifier si la connexion est réussie
             if (connection != null) {
-                System.out.println("Connexion à la base de données réussie !");
+                System.out.println("Connexion à la base de données Oracle réussie !");
             } else {
-                System.out.println("La connexion à la base de données a échoué !");
+                System.out.println("La connexion à la base de données Oracle a échoué !");
             }
         } catch (ClassNotFoundException e) {
-            System.out.println("Erreur : pilote JDBC introuvable !");
+            System.out.println("Erreur : pilote JDBC Oracle introuvable !");
             e.printStackTrace();
         } catch (SQLException e) {
-            System.out.println("Erreur : échec de la connexion à la base de données !");
+            System.out.println("Erreur : échec de la connexion à la base de données Oracle !");
             e.printStackTrace();
         } finally {
             // Fermer la connexion
@@ -450,6 +452,5 @@ public class DatabaseConnectionTest {
         }
     }
 }
-
 
 
