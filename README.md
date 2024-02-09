@@ -410,9 +410,8 @@ public class ONS_Attachement implements Serializable {
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
-C:\Users\06159>java -cp .:C:/Tools/sqldeveloper/jdbc/lib/ojdbc11.jar OracleDatabaseConnectionTest
-Error: Could not find or load main class OracleDatabaseConnectionTest
-Caused by: java.lang.ClassNotFoundException: OracleDatabaseConnectionTest
-
-
+C:\Users\06159>java -cp C:/Users/06159/.m2/repository/com/oracle/database/jdbc/ojdbc6/11.2.0.4/ojdbc6.jar OracleDatabaseConnectionTest.java
+Erreur : Ã©chec de la connexion Ã  la base de donnÃ©es Oracle !
+java.sql.SQLException: ORA-00604: error occurred at recursive SQL level 1
+ORA-01882: timezone region not found
 
