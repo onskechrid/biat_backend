@@ -409,8 +409,25 @@ public class ONS_Attachement implements Serializable {
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'dataSourceScriptDatabaseInitializer' defined in class path resource [org/springframework/boot/autoconfigure/sql/init/DataSourceInitializationConfiguration.class]: Unsatisfied dependency expressed through method 'dataSourceScriptDatabaseInitializer' parameter 0; nested exception is org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception; nested exception is java.lang.IllegalStateException: Cannot load driver class: oracle.jdbc.driver.OraclecDialect
-Caused by: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/autoconfigure/jdbc/DataSourceConfiguration$Hikari.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception; nested exception is java.lang.IllegalStateException: Cannot load driver class: oracle.jdbc.driver.OraclecDialect
-Caused by: org.springframework.beans.BeanInstantiationException: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception; nested exception is java.lang.IllegalStateException: Cannot load driver class: oracle.jdbc.driver.OraclecDialect
-Caused by: java.lang.IllegalStateException: Cannot load driver class: oracle.jdbc.driver.OraclecDialect
+DECLARE @TableName NVARCHAR(255)
+DECLARE @SQL NVARCHAR(MAX)
+
+DECLARE table_cursor CURSOR FOR
+SELECT name
+FROM sys.tables
+WHERE name LIKE 'ONS_%'
+
+OPEN table_cursor
+
+FETCH NEXT FROM table_cursor INTO @TableName
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    SET @SQL = 'DROP TABLE ' + QUOTENAME(@TableName)
+    EXEC sp_executesql @SQL
+    FETCH NEXT FROM table_cursor INTO @TableName
+END
+
+CLOSE table_cursor
+DEALLOCATE table_cursor
 
