@@ -1,6 +1,5 @@
 package tn.biat.biat.entities.otherDB;
 
-
 import lombok.*;
 
 import javax.persistence.*;
@@ -16,14 +15,21 @@ import java.io.Serializable;
 public class ONS_Attachement implements Serializable {
 
     @Id
+    @GeneratedValue(generator = "attachement_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(schema = "RSQ", name = "attachement_seq", allocationSize = 1, sequenceName = "ONS_ATTACHEMENT_SEQ")
     @Column(name = "ID")
-    @GeneratedValue(generator = "customer_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(schema = "RSQ", name = "customer_seq", allocationSize = 1, sequenceName = "customer_seq")
-    private Long ID;
+    private Long id;
 
-    private String NAME;
-    private String SIZE;
-    private String TYPE;
-    private String PATH;
+    @Column(name = "NAME")
+    private String name;
+
+    @Column(name = "SIZE")
+    private String size;
+
+    @Column(name = "TYPE")
+    private String type;
+
+    @Column(name = "PATH")
+    private String path;
 
 }
