@@ -1,84 +1,29 @@
-        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:702)
-        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:608)
-        at oracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1335)
-        at oracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:1041)
-        at oracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:443)
-        at oracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:533)
-        at oracle.jdbc.driver.T4CStatement.doOall8(T4CStatement.java:176)
-        at oracle.jdbc.driver.T4CStatement.executeForRows(T4CStatement.java:1305)
-        at oracle.jdbc.driver.OracleStatement.executeSQLStatement(OracleStatement.java:1877)
-        at oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1520)
-        at oracle.jdbc.driver.OracleStatement.executeInternal(OracleStatement.java:2557)
-        at oracle.jdbc.driver.OracleStatement.execute(OracleStatement.java:2506)
-        at oracle.jdbc.driver.OracleStatementWrapper.execute(OracleStatementWrapper.java:334)
-        at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94)
-        at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
-        at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:54)
-        ... 34 more
-Caused by: Error : 904, Position : 321, SQL = create table RSQ.ONS_AttachementReclamation (id number(19,0) not null, NC varchar2(255 char), Ref varchar2(255 char), SF varchar2(255 char), dateOperation varchar2(255 char), dateValeur varchar2(255 char), libelleOperation varchar2(255 char), montant varchar2(255 char), name varchar2(255 char), path varchar2(255 char), size varchar2(255 char), type varchar2(255 char), primary key (id)), Original SQL = create table RSQ.ONS_AttachementReclamation (id number(19,0) not null, NC varchar2(255 char), Ref varchar2(255 char), SF varchar2(255 char), dateOperation varchar2(255 char), dateValeur varchar2(255 char), 
-libelleOperation varchar2(255 char), montant varchar2(255 char), name varchar2(255 char), path varchar2(255 char), size varchar2(255 char), type varchar2(255 char), primary key (id)), Error Message = ORA-00904:  : identificateur non valide
+package tn.biat.biat.entities.otherDB;
 
-        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:710)
-        ... 49 more
 
-fÚvr. 12, 2024 4:18:11 PM org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl handleException
-WARN: GenerationTarget encountered exception accepting command : Error executing DDL "create table RSQ.ONS_Menu (id number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (id))" via JDBC Statement
-org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "create table RSQ.ONS_Menu (id number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (id))" via JDBC Statement
-        at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:67)
-        at org.hibernate.tool.schema.internal.SchemaCreatorImpl.applySqlString(SchemaCreatorImpl.java:458)
-        at org.hibernate.tool.schema.internal.SchemaCreatorImpl.applySqlStrings(SchemaCreatorImpl.java:442)
-        at org.hibernate.tool.schema.internal.SchemaCreatorImpl.createFromMetadata(SchemaCreatorImpl.java:325)
-        at org.hibernate.tool.schema.internal.SchemaCreatorImpl.performCreation(SchemaCreatorImpl.java:169)
-        at org.hibernate.tool.schema.internal.SchemaCreatorImpl.doCreation(SchemaCreatorImpl.java:138)
-        at org.hibernate.tool.schema.internal.SchemaCreatorImpl.doCreation(SchemaCreatorImpl.java:124)
-        at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:168)
-        at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:85)
-        at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:335)
-        at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:471)
-        at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1498)
-        at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:58)
-        at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:365)
-        at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:409)
-        at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396)
-        at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:341)
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1863)
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1800)
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:620)
-        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
-        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
-        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
-        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
-        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208)
-        at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1154)
-        at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:908)
-        at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:583)
-        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:147)
-        at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:731)
-        at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:408)
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:307)
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1303)
-        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1292)
-        at tn.biat.biat.BiatApplication.main(BiatApplication.java:32)
-Caused by: java.sql.SQLSyntaxErrorException: ORA-00904:  : identificateur non valide
+import lombok.*;
 
-        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:702)
-        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:608)
-        at oracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1335)
-        at oracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:1041)
-        at oracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:443)
-        at oracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:533)
-        at oracle.jdbc.driver.T4CStatement.doOall8(T4CStatement.java:176)
-        at oracle.jdbc.driver.T4CStatement.executeForRows(T4CStatement.java:1305)
-        at oracle.jdbc.driver.OracleStatement.executeSQLStatement(OracleStatement.java:1877)
-        at oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1520)
-        at oracle.jdbc.driver.OracleStatement.executeInternal(OracleStatement.java:2557)
-        at oracle.jdbc.driver.OracleStatement.execute(OracleStatement.java:2506)
-        at oracle.jdbc.driver.OracleStatementWrapper.execute(OracleStatementWrapper.java:334)
-        at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94)
-        at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
-        at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:54)
-        ... 34 more
-Caused by: Error : 904, Position : 169, SQL = create table RSQ.ONS_Menu (id number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (id)), Original SQL = create table RSQ.ONS_Menu (id number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (id)), Error Message = ORA-00904:  : identificateur non valide
+import javax.persistence.*;
+import java.io.Serializable;
 
-        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:710)
-        ... 49 more
+@Getter
+@Setter
+@ToString
+@AllArgsConstructor
+@NoArgsConstructor
+@Entity
+@Table(name ="ONS_ATTACHEMENT" ,schema = "RSQ")
+public class ONS_Attachement implements Serializable {
+
+    @Id
+    @Column(name = "ID")
+    @GeneratedValue(generator = "customer_seq", strategy = GenerationType.SEQUENCE)
+    @SequenceGenerator(schema = "RSQ", name = "customer_seq", allocationSize = 1, sequenceName = "customer_seq")
+    private Long ID;
+
+    private String NAME;
+    private String SIZE;
+    private String TYPE;
+    private String PATH;
+
+}
