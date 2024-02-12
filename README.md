@@ -1,117 +1,62 @@
-package tn.biat.biat.entities.otherDB;
 
-import lombok.*;
+fÚvr. 12, 2024 5:40:39 PM org.hibernate.tool.schema.internal.ExceptionHandlerLoggedImpl handleException
+WARN: GenerationTarget encountered exception accepting command : Error executing DDL "create table RSQ.ONS_MENU (ID number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (ID))" via JDBC Statement
+org.hibernate.tool.schema.spi.CommandAcceptanceException: Error executing DDL "create table RSQ.ONS_MENU (ID number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (ID))" via JDBC Statement
+        at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:67)
+        at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlString(AbstractSchemaMigrator.java:581)
+        at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.applySqlStrings(AbstractSchemaMigrator.java:526)
+        at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.createTable(AbstractSchemaMigrator.java:293)
+        at org.hibernate.tool.schema.internal.GroupedSchemaMigratorImpl.performTablesMigration(GroupedSchemaMigratorImpl.java:74)
+        at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.performMigration(AbstractSchemaMigrator.java:220)
+        at org.hibernate.tool.schema.internal.AbstractSchemaMigrator.doMigration(AbstractSchemaMigrator.java:123)
+        at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.performDatabaseAction(SchemaManagementToolCoordinator.java:196)
+        at org.hibernate.tool.schema.spi.SchemaManagementToolCoordinator.process(SchemaManagementToolCoordinator.java:85)
+        at org.hibernate.internal.SessionFactoryImpl.<init>(SessionFactoryImpl.java:335)
+        at org.hibernate.boot.internal.SessionFactoryBuilderImpl.build(SessionFactoryBuilderImpl.java:471)
+        at org.hibernate.jpa.boot.internal.EntityManagerFactoryBuilderImpl.build(EntityManagerFactoryBuilderImpl.java:1498)
+        at org.springframework.orm.jpa.vendor.SpringHibernateJpaPersistenceProvider.createContainerEntityManagerFactory(SpringHibernateJpaPersistenceProvider.java:58)
+        at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.createNativeEntityManagerFactory(LocalContainerEntityManagerFactoryBean.java:365)
+        at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.buildNativeEntityManagerFactory(AbstractEntityManagerFactoryBean.java:409)
+        at org.springframework.orm.jpa.AbstractEntityManagerFactoryBean.afterPropertiesSet(AbstractEntityManagerFactoryBean.java:396)
+        at org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean.afterPropertiesSet(LocalContainerEntityManagerFactoryBean.java:341)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.invokeInitMethods(AbstractAutowireCapableBeanFactory.java:1863)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.initializeBean(AbstractAutowireCapableBeanFactory.java:1800)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.doCreateBean(AbstractAutowireCapableBeanFactory.java:620)
+        at org.springframework.beans.factory.support.AbstractAutowireCapableBeanFactory.createBean(AbstractAutowireCapableBeanFactory.java:542)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.lambda$doGetBean$0(AbstractBeanFactory.java:335)
+        at org.springframework.beans.factory.support.DefaultSingletonBeanRegistry.getSingleton(DefaultSingletonBeanRegistry.java:234)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.doGetBean(AbstractBeanFactory.java:333)
+        at org.springframework.beans.factory.support.AbstractBeanFactory.getBean(AbstractBeanFactory.java:208)
+        at org.springframework.context.support.AbstractApplicationContext.getBean(AbstractApplicationContext.java:1154)
+        at org.springframework.context.support.AbstractApplicationContext.finishBeanFactoryInitialization(AbstractApplicationContext.java:908)
+        at org.springframework.context.support.AbstractApplicationContext.refresh(AbstractApplicationContext.java:583)
+        at org.springframework.boot.web.servlet.context.ServletWebServerApplicationContext.refresh(ServletWebServerApplicationContext.java:147)
+        at org.springframework.boot.SpringApplication.refresh(SpringApplication.java:731)
+        at org.springframework.boot.SpringApplication.refreshContext(SpringApplication.java:408)
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:307)
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1303)
+        at org.springframework.boot.SpringApplication.run(SpringApplication.java:1292)
+        at tn.biat.biat.BiatApplication.main(BiatApplication.java:32)
+Caused by: java.sql.SQLSyntaxErrorException: ORA-00904:  : identificateur non valide
 
-import javax.persistence.*;
-import java.io.Serializable;
+        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:702)
+        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:608)
+        at oracle.jdbc.driver.T4C8Oall.processError(T4C8Oall.java:1335)
+        at oracle.jdbc.driver.T4CTTIfun.receive(T4CTTIfun.java:1041)
+        at oracle.jdbc.driver.T4CTTIfun.doRPC(T4CTTIfun.java:443)
+        at oracle.jdbc.driver.T4C8Oall.doOALL(T4C8Oall.java:533)
+        at oracle.jdbc.driver.T4CStatement.doOall8(T4CStatement.java:176)
+        at oracle.jdbc.driver.T4CStatement.executeForRows(T4CStatement.java:1305)
+        at oracle.jdbc.driver.OracleStatement.executeSQLStatement(OracleStatement.java:1877)
+        at oracle.jdbc.driver.OracleStatement.doExecuteWithTimeout(OracleStatement.java:1520)
+        at oracle.jdbc.driver.OracleStatement.executeInternal(OracleStatement.java:2557)
+        at oracle.jdbc.driver.OracleStatement.execute(OracleStatement.java:2506)
+        at oracle.jdbc.driver.OracleStatementWrapper.execute(OracleStatementWrapper.java:334)
+        at com.zaxxer.hikari.pool.ProxyStatement.execute(ProxyStatement.java:94)
+        at com.zaxxer.hikari.pool.HikariProxyStatement.execute(HikariProxyStatement.java)
+        at org.hibernate.tool.schema.internal.exec.GenerationTargetToDatabase.accept(GenerationTargetToDatabase.java:54)
+        ... 34 more
+Caused by: Error : 904, Position : 169, SQL = create table RSQ.ONS_MENU (ID number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (ID)), Original SQL = create table RSQ.ONS_MENU (ID number(19,0) not null, active number(1,0) not null, checked number(1,0) not null, iconcomponent varchar2(255 char), idparent number(19,0), level number(10,0) not null, name varchar2(255 char), url varchar2(255 char), primary key (ID)), Error Message = ORA-00904:  : identificateur non valide
 
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name ="ONS_ATTACHEMENT" ,schema = "RSQ")
-public class ONS_Attachement implements Serializable {
-
-    @Id
-    @GeneratedValue(generator = "attachement_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(schema = "RSQ", name = "attachement_seq", allocationSize = 1, sequenceName = "ONS_ATTACHEMENT_SEQ")
-    @Column(name = "ID")
-    private Long id;
-
-    @Column(name = "NAME")
-    private String name;
-
-    @Column(name = "SIZE")
-    private String size;
-
-    @Column(name = "TYPE")
-    private String type;
-
-    @Column(name = "PATH")
-    private String path;
-
-}
-
-
-
-
-package tn.biat.biat.entities.otherDB;
-
-
-import lombok.*;
-
-import javax.persistence.*;
-import java.io.Serializable;
-
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name = "ONS_ATTACHEMENTRECLAMATION", schema = "RSQ")
-public class ONS_AttachementReclamation implements Serializable {
-
-
-    @Id
-    @GeneratedValue(generator = "ONS_AttachementReclamation_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(schema = "RSQ", name = "ONS_AttachementReclamation_seq", allocationSize = 1, sequenceName = "ONS_ATTACHEMENTRECLAMATION_SEQ")
-    @Column(name = "ID")
-    private Long id;
-
-    private String name;
-    private String size;
-    private String type;
-    private String path;
-
-    private String NC;
-    private String SF;
-
-    private String dateValeur;
-    private String libelleOperation;
-    private String Ref;
-    private String dateOperation;
-    private String montant;
-
-}
-
-
-
-
-package tn.biat.biat.entities.otherDB;
-
-
-import lombok.*;
-
-import javax.persistence.*;
-import java.io.Serializable;
-
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name="ONS_MENU", schema = "RSQ")
-public class ONS_Menu implements Serializable {
-
-    @Id
-    @Column(name = "ID")
-    @GeneratedValue(generator = "ONS_Menu_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(schema = "RSQ", name = "ONS_Menu_seq", allocationSize = 1, sequenceName = "ONS_MENU_SEQ")
-    private Long id;
-
-    private String name;
-    private String url;
-    private String iconcomponent;
-    private boolean checked;
-    private Long idparent;
-    private int level;
-    private boolean active;
-
-    //@OneToMany
-    //private List<ONS_Composant> composants;
-}
-
+        at oracle.jdbc.driver.T4CTTIoer11.processError(T4CTTIoer11.java:710)
+        ... 49 more
