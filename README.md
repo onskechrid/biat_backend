@@ -1,18 +1,27 @@
-@Override
-public List<String> getCategories(String unite) {
-    String query = "SELECT TO_CHAR(periode, 'MON YY') AS formatted_date " +
-                   "FROM TB_FICHE_FINAL " +
-                   "WHERE unite = ? " +
-                   "ORDER BY periode DESC FETCH FIRST 4 ROWS ONLY";
-
-    JSONArray json = iFunctionService.queryinput(query, unite);
-
-    List<String> list = new ArrayList<>();
-    for (Object obj : json) {
-        JSONObject jsonObject = (JSONObject) obj;
-        String formattedDate = jsonObject.get("formatted_date").toString();
-        list.add(formattedDate);
-    }
-    System.out.println(list);
-    return list;
-}
+ totalEngDec22(unite: string) {
+    console.log("Total eng dec23");
+    this.chartService.getCategories(unite).subscribe(res=>{
+      console.log("ressss :::::: "+res[0])
+      this.chartService.getEngGByPeriod(unite,res[0]).subscribe(tt => {
+        console.log("eeeeeooooooo :: "+tt)
+        let eng : string = ""
+        if(!tt.toString().includes(".")){
+          eng = tt.toString()+".0"
+        }else{
+          eng = tt.toString()
+        }
+        console.log("décembre engagement ", eng)
+        this.chartService.getDetails(unite, eng).subscribe(r => {
+          console.log("decembre ",r)
+          this.chartOptionsDec22 = {
+            series: r,
+            chart: {
+              width: "260",
+              type: "pie"
+            },
+            labels: ["PME", "PRF", "PAR"]
+          };
+        });
+      })
+    });
+  }
