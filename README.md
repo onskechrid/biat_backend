@@ -1,26 +1,2 @@
-package tn.biat.biat.entities.otherDB;
-
-
-import lombok.*;
-
-import javax.persistence.*;
-import java.io.Serializable;
-
-@Getter
-@Setter
-@ToString
-@AllArgsConstructor
-@NoArgsConstructor
-@Entity
-@Table(name="RC_URL",schema = "RSQ")
-public class RC_Url implements Serializable {
-
-    @Id
-    @Column(name = "ID")
-    @GeneratedValue(generator = "RC_Url_seq", strategy = GenerationType.SEQUENCE)
-    @SequenceGenerator(schema = "RSQ", name = "RC_Url_seq", allocationSize = 1, sequenceName = "RC_Url_SEQ")
-    private Long id;
-
-    private String url;
-    private String component;
-}
+queryyyy3  ::: select * from (select periode,eng_global from tb_fiche_final where unite = 'B5' and periode like '31/12%' or periode like '%/01/%' order by periode DESC) where ROWNUM <= 4 ;
+java.sql.SQLSyntaxErrorException: ORA-00911: caractère non valide
