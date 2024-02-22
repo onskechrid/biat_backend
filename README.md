@@ -8,9 +8,9 @@ import java.util.List;
 public class JsonFormatter {
 
     public static void main(String[] args) {
-        String json = "{\"employees\": [{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":30,\"department\":\"IT\"},{\"firstName\":\"Jane\",\"lastName\":\"Smith\",\"age\":35,\"department\":\"HR\"},{\"firstName\":\"Mike\",\"lastName\":\"Johnson\",\"age\":40,\"department\":\"Finance\"}]}";
+        String json = "[{\"firstName\":\"John\",\"lastName\":\"Doe\",\"age\":30,\"department\":\"IT\"},{\"firstName\":\"Jane\",\"lastName\":\"Smith\",\"age\":35,\"department\":\"HR\"},{\"firstName\":\"Mike\",\"lastName\":\"Johnson\",\"age\":40,\"department\":\"Finance\"}]";
 
-        List<List<String>> formattedData = formatJson(json, "employees");
+        List<List<String>> formattedData = formatJson(json);
 
         // Print the formatted data
         for (List<String> row : formattedData) {
@@ -18,7 +18,7 @@ public class JsonFormatter {
         }
     }
 
-    public static List<List<String>> formatJson(String jsonString, String jsonArrayKey) {
+    public static List<List<String>> formatJson(String jsonString) {
         List<List<String>> formattedData = new ArrayList<>();
         ObjectMapper objectMapper = new ObjectMapper();
 
@@ -26,13 +26,10 @@ public class JsonFormatter {
             // Read JSON string into a JsonNode
             JsonNode rootNode = objectMapper.readTree(jsonString);
 
-            // Get the JSON array by key
-            JsonNode jsonArray = rootNode.get(jsonArrayKey);
-
-            if (jsonArray != null && jsonArray.isArray()) {
+            if (rootNode.isArray()) {
                 // Add headers
                 List<String> headers = new ArrayList<>();
-                JsonNode firstObject = jsonArray.get(0);
+                JsonNode firstObject = rootNode.get(0);
                 Iterator<String> fieldNames = firstObject.fieldNames();
                 while (fieldNames.hasNext()) {
                     headers.add(fieldNames.next());
@@ -40,7 +37,7 @@ public class JsonFormatter {
                 formattedData.add(headers);
 
                 // Add data rows
-                for (JsonNode jsonObject : jsonArray) {
+                for (JsonNode jsonObject : rootNode) {
                     List<String> row = new ArrayList<>();
                     for (String fieldName : headers) {
                         row.add(jsonObject.get(fieldName).asText());
