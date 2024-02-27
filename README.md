@@ -1,14 +1,1 @@
-C:\Users\06159>java -XX:+PrintFlagsFinal -version | findstr HeapSize
-   size_t ErgoHeapSizeLimit                        = 0                                         {product} {default}
-   size_t HeapSizePerGCThread                      = 43620760                                  {product} {default}
-   size_t InitialHeapSize                          = 264241152                                 {product} {ergonomic}
-   size_t LargePageHeapSizeThreshold               = 134217728                                 {product} {default}
-   size_t MaxHeapSize                              = 4208984064                                {product} {ergonomic}
-   size_t MinHeapSize                              = 8388608                                   {product} {ergonomic}
-    uintx NonNMethodCodeHeapSize                   = 7602480                                {pd product} {ergonomic}
-    uintx NonProfiledCodeHeapSize                  = 122027880                              {pd product} {ergonomic}
-    uintx ProfiledCodeHeapSize                     = 122027880                              {pd product} {ergonomic}
-   size_t SoftMaxHeapSize                          = 4208984064                             {manageable} {ergonomic}
-java version "15" 2020-09-15
-Java(TM) SE Runtime Environment (build 15+36-1562)
-Java HotSpot(TM) 64-Bit Server VM (build 15+36-1562, mixed mode, sharing)
+Access to XMLHttpRequest at 'http://localhost:8080/api/v1/functions/query/SELECT%20rcp.cpte,%20i.idbct,i.id24,substr(rcp.cpte,1,2)%20as%20codeagence,rcp.NOM,rcp.risk_brut,rcp.risk_net,rcp.garded,rcp.agios_res,rcp.prov_req,rcp.classe,rcp.motif,rcl.clasimp,rcl.clasgel,rcl.classub,rcl.clascon%20from%20(select%20*%20from%20risk_cpte%20where%20periode%20=%20'31/12/23')%20rcp%20,%20risk_classe%20rcl%20,%20identite%20i%20where%20rcp.cpte=rcl.cpte%20and%20%20rcp.periode=rcl.periode%20and%20rcp.cpte=i.cpte%20and%20rownum%20%3C=%20100' from origin 'http://localhost:4200' has been blocked by CORS policy: Response to preflight request doesn't pass access control check: It does not have HTTP ok status.
